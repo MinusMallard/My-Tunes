@@ -50,10 +50,11 @@ fun HomeScreen(
             NavigationBar(
                 containerColor = MaterialTheme.colorScheme.surface,
                 contentColor = MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier.height(60.dp)
+                modifier = Modifier.height(65.dp)
             ) {
                 items.forEachIndexed { index, item ->
                     NavigationBarItem(
+                        modifier = modifier,
                         selected = selectedIconIndex == index,
                         onClick = {
                             if (selectedIconIndex != index)navController.navigate(item.route)
