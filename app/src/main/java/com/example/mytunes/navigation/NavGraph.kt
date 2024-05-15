@@ -8,6 +8,8 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
@@ -19,6 +21,9 @@ import com.example.mytunes.ui.screen.HomeScreen
 import com.example.mytunes.ui.screen.GetName
 import com.example.mytunes.ui.screen.SplashScreen
 import com.example.mytunes.ui.viewModel.HomeViewModel
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 
 @RequiresExtension(extension = Build.VERSION_CODES.S, version = 7)
@@ -28,9 +33,10 @@ fun AppNavHost(
     navController: NavHostController = rememberNavController(),
     @SuppressLint("ModifierParameter") modifier: Modifier = Modifier,
     sharedPre: SharedPreferences,
-    greeting: String
 ) {
-    val homeViewModel: HomeViewModel = viewModel(factory = AppViewModelProvider.Factory)
+    val currentTime = rememberSaveable { mutableStateOf(getCurrentTime()) }
+    val greeting = rememberSaveable { mutableStateOf(getGreeting(currentTime.value.toString())) }
+
     NavHost (
         navController = navController,
         startDestination = "splashScreen",
@@ -54,12 +60,14 @@ fun AppNavHost(
             enterTransition = { fadeIn(animationSpec = tween(500)) },
             exitTransition = { fadeOut(animationSpec = tween(500)) }
         ) {
+            val homeViewModel: HomeViewModel = viewModel(factory = AppViewModelProvider.Factory)
             HomeScreen(
+                isLoaded = homeViewModel.isLoaded,
                 navController = navController,
-                greeting = greeting,
+                greeting = greeting.value,
                 name = sharedPre.getString("name", "")!!,
                 searchPlaylist = {homeViewModel.getPlayList(it)},
-                songs = homeViewModel.playListLoadState
+//                songs = homeViewModel.playListLoadState
                 )
         }
         composable(
@@ -72,5 +80,18 @@ fun AppNavHost(
             }
             })
         }
+    }
+}
+
+private fun getCurrentTime(): String {
+    val time = SimpleDateFormat("HH:mm:ss", Locale.getDefault())
+    return time.format(Date())
+}
+
+private fun getGreeting(time: String): String {
+    return when (time.substringBefore(":").toInt()) {
+        in 6..11 -> "Good morning"
+        in 12..17 -> "Good afternoon"
+        else -> "Good evening"
     }
 }
