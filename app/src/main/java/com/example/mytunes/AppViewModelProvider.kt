@@ -1,5 +1,7 @@
 package com.example.mytunes
 
+import android.content.Context
+import android.content.SharedPreferences
 import android.os.Build
 import androidx.annotation.RequiresExtension
 import androidx.lifecycle.ViewModelProvider
@@ -20,7 +22,8 @@ object AppViewModelProvider {
         initializer {
             HomeViewModel(
                 this.myTunesApplication().container.myTunesDataRepository,
-                this.myTunesApplication().container.myTunesDataRepository2
+                this.myTunesApplication().container.myTunesDataRepository2,
+                languages = myTunesApplication().getSharedPreferences("Languages", Context.MODE_PRIVATE).getString("languages", "")!!
             )
         }
     }
