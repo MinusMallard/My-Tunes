@@ -1,11 +1,11 @@
 package com.example.mytunes.ui.elements
 
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.List
+import androidx.compose.material.icons.automirrored.outlined.List
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.outlined.Home
-import androidx.compose.material.icons.outlined.List
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.ui.graphics.vector.ImageVector
 
@@ -33,8 +33,8 @@ val items = listOf(
     ),
     BottomNavigationItem(
         title = "",
-        selectedIcon = Icons.Filled.List,
-        unselectedIcon = Icons.Outlined.List,
+        selectedIcon = Icons.AutoMirrored.Filled.List,
+        unselectedIcon = Icons.AutoMirrored.Outlined.List,
         route = "library"
     )
 )
