@@ -28,9 +28,9 @@ data class Album(
 )
 
 data class AlbumArtists(
-    @SerializedName("primary") val primary: List<String?>,
-    @SerializedName("featured") val featured: List<String?>,
-    @SerializedName("all") val all: List<String?>
+    @SerializedName("primary") val primary: List<Artist>?,
+    @SerializedName("featured") val featured: List<Artist>?,
+    @SerializedName("all") val all: List<Artist>?
 )
 
 data class AlbumImage(
