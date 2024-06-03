@@ -32,15 +32,16 @@ import androidx.compose.ui.zIndex
 fun GetName(
     sharedPref: SharedPreferences,
     modifier: Modifier = Modifier,
-    navigateHome:() -> Unit
+    navigateGetLang:() -> Unit
 ) {
     var newName by rememberSaveable {
         mutableStateOf("")
     }
 
     Box(modifier = modifier
-        .fillMaxSize()// Match the size of the Scaffold
         .zIndex(1f)
+        .fillMaxSize()// Match the size of the Scaffold
+
         .background(MaterialTheme.colorScheme.background),
         contentAlignment = Alignment.Center
     ) {
@@ -75,7 +76,7 @@ fun GetName(
                         putString("name", newName)
                         apply()
                     }
-                    navigateHome()
+                    navigateGetLang()
                 },
                 enabled = newName.isNotBlank() && newName.isNotEmpty(),
             ) {
