@@ -22,7 +22,7 @@ fun AlbumCard(
     album: Album,
     modifier: Modifier = Modifier
 ) {
-    Box(modifier = Modifier.width(200.dp)) {
+    Box(modifier = Modifier.width(200.dp).padding(8.dp)) {
         Column {
             Log.d("MainActivity", album.image[2].url.toString())
             CoverImage(photo = album.image[2].url.toString(), modifier = Modifier
