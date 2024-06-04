@@ -8,6 +8,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
+import com.example.mytunes.ui.viewModel.ExploreCardViewModel
 import com.example.mytunes.ui.viewModel.HomeViewModel
 import com.example.mytunes.ui.viewModel.SearchViewModel
 import com.example.mytunes.ui.viewModel.SplashViewModel
@@ -29,6 +30,11 @@ object AppViewModelProvider {
         }
         initializer {
             SearchViewModel(
+                this.myTunesApplication().container.myTunesDataRepository
+            )
+        }
+        initializer {
+            ExploreCardViewModel(
                 this.myTunesApplication().container.myTunesDataRepository
             )
         }
