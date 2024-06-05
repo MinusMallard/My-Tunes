@@ -101,4 +101,10 @@ dependencies {
     implementation("androidx.media3:media3-common:1.3.1")
     //Media Session
     implementation("androidx.media3:media3-session:1.3.1")
+
+    implementation("io.grpc:grpc-okhttp:1.57.2")
+
+
+    //System Ui Controller
+    implementation("com.google.accompanist:accompanist-systemuicontroller:0.30.1")
 }
