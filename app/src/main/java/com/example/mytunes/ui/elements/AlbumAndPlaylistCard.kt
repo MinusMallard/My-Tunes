@@ -1,6 +1,7 @@
 package com.example.mytunes.ui.elements
 
 import android.util.Log
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
@@ -20,9 +21,17 @@ import com.example.mytunes.model.Playlist
 @Composable
 fun AlbumCard(
     album: Album,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    navigateTo: (String) -> Unit
 ) {
-    Box(modifier = Modifier.width(200.dp).padding(8.dp)) {
+    Box(
+        modifier = Modifier
+            .width(200.dp)
+            .clickable {
+                navigateTo("album/${album.id}")
+            }
+            .padding(8.dp)
+    ) {
         Column {
             Log.d("MainActivity", album.image[2].url.toString())
             CoverImage(photo = album.image[2].url.toString(), modifier = Modifier
@@ -38,18 +47,6 @@ fun AlbumCard(
                 overflow = TextOverflow.Ellipsis,
                 lineHeight = 12.sp
             )
-//            album.artists.primary?.let {
-//                Text(
-//                    text = it,
-//                    modifier = Modifier.padding(start = 8.dp, end = 8.dp),
-//                    fontWeight = FontWeight.Light,
-//                    fontSize = 12.sp,
-//                    maxLines = 2,
-//                    overflow = TextOverflow.Ellipsis,
-//                    color = Color.Gray,
-//                    lineHeight = 12.sp
-//                )
-//            }
         }
     }
 }
