@@ -1,5 +1,6 @@
 package com.example.mytunes.model
 
+import android.provider.MediaStore
 import com.google.gson.annotations.SerializedName
 
 data class AlbumResponse(
@@ -36,4 +37,25 @@ data class AlbumArtists(
 data class AlbumImage(
     @SerializedName("quality") val quality: String?, // Nullable because it can be null in the JSON
     @SerializedName("url") val url: String? // Nullable because it can be null in the JSON
+)
+
+data class ApiResponse(
+    val success: Boolean,
+    val data: AlbumData
+)
+
+data class AlbumData(
+    val id: String,
+    val name: String,
+    val description: String,
+    val type: String,
+    val year: Int?,
+    val playCount: Int?,
+    val language: String,
+    val explicitContent: Boolean,
+    val url: String,
+    val songCount: Int,
+    val artists: Artist,
+    val image: List<Image>,
+    val songs: List<Song>
 )
