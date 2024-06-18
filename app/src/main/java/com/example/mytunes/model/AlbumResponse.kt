@@ -59,3 +59,23 @@ data class AlbumData(
     val image: List<Image>,
     val songs: List<Song>
 )
+
+data class PlaylistApiResponse(
+    val success: Boolean,
+    val data: PlaylistData
+)
+
+data class PlaylistData(
+    val id: String,
+    val name: String,
+    val description: String?,
+    val type: String,
+    val year: Int?,
+    val playCount: Int?,
+    val language: String,
+    val explicitContent: Boolean,
+    val url: String,
+    val songCount: Int?,
+    val image: List<Image>,
+    val songs: List<Song>
+)
