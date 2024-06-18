@@ -8,8 +8,11 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
+import com.example.mytunes.ui.screen.PlaylistScreen
+import com.example.mytunes.ui.viewModel.AlbumViewModel
 import com.example.mytunes.ui.viewModel.ExploreCardViewModel
 import com.example.mytunes.ui.viewModel.HomeViewModel
+import com.example.mytunes.ui.viewModel.PlaylistViewModel
 import com.example.mytunes.ui.viewModel.SearchViewModel
 import com.example.mytunes.ui.viewModel.SplashViewModel
 
@@ -23,7 +26,6 @@ object AppViewModelProvider {
         }
         initializer {
             HomeViewModel(
-                this.myTunesApplication().container.myTunesDataRepository,
                 this.myTunesApplication().container.myTunesDataRepository2,
                 languages = myTunesApplication().getSharedPreferences("Languages", Context.MODE_PRIVATE).getString("languages", "")!!
             )
@@ -37,6 +39,16 @@ object AppViewModelProvider {
             ExploreCardViewModel(
                 this.myTunesApplication().container.myTunesDataRepository
             )
+        }
+
+        initializer {
+            AlbumViewModel(
+                this.myTunesApplication().container.myTunesDataRepository
+            )
+        }
+
+        initializer {
+            PlaylistViewModel(this.myTunesApplication().container.myTunesDataRepository)
         }
     }
 }
