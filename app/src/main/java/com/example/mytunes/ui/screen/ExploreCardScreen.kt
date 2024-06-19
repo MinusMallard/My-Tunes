@@ -45,7 +45,8 @@ fun ExploreCardScreen(
     category: String = "",
     color: Color,
     searchAlbum:(String) -> Unit,
-    response: ExploreCardUiState
+    response: ExploreCardUiState,
+    navigateTo: (String) -> Unit
 ) {
 
     LaunchedEffect(true) {
@@ -54,7 +55,6 @@ fun ExploreCardScreen(
     Column(modifier = modifier.fillMaxSize()) {
         val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
         Scaffold (
-
             topBar = {
                 CenterAlignedTopAppBar(
                     colors = TopAppBarDefaults.topAppBarColors(
@@ -72,7 +72,9 @@ fun ExploreCardScreen(
                         )
                     },
                     navigationIcon = {
-                        IconButton(onClick = {}) {
+                        IconButton(onClick = {
+                            navigateTo("explore")
+                        }) {
                             Icon (
                                 imageVector = Icons.Filled.ArrowBackIosNew,
                                 contentDescription = null
@@ -88,7 +90,8 @@ fun ExploreCardScreen(
                 is ExploreCardUiState.Error -> ErrorScreen()
                 is ExploreCardUiState.Success -> ExploreCardContent(
                     albums = response.albums.data.results,
-                    modifier = Modifier.padding(top = 90.dp)
+                    modifier = Modifier.padding(innerPadding),
+                    navigateTo = navigateTo,
                 )
             }
         }
@@ -99,14 +102,18 @@ fun ExploreCardScreen(
 @Composable
 fun ExploreCardContent(
     albums: List<Album>,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    navigateTo: (String) -> Unit
 ) {
     Box(modifier = modifier) {
         LazyVerticalGrid(
             columns = GridCells.Fixed(2),
         ) {
             items(albums) { album ->
-                AlbumCard(album = album)
+                AlbumCard(
+                    album = album,
+                    navigateTo = navigateTo
+                )
             }
         }
     }
