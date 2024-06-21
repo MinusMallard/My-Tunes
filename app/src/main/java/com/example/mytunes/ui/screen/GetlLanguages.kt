@@ -46,7 +46,7 @@ fun GetLanguages(
         "Kannada", "Bhojpuri", "Malayalam", "Urdu",
         "Haryanvi", "Rajasthani", "Odia", "Assamese")
 
-    var selectedLang = remember {
+    val selectedLang = remember {
         mutableListOf(false,false,false,false,
             false,false,false,false,
             false,false,false,false,
@@ -90,7 +90,6 @@ fun GetLanguages(
                 items(langs) { lang ->
                     selectedLang[langs.indexOf(lang)] = langButton(selectedLang = selectedLang, index = langs.indexOf(lang), language = lang)
                     enabled = selectedLang.contains(true)
-                    Log.d("MainActivity", selectedLang.toString())
                 }
                 item { Spacer(modifier = Modifier.height(20.dp)) }
             }
