@@ -27,6 +27,7 @@ object AppViewModelProvider {
         initializer {
             HomeViewModel(
                 this.myTunesApplication().container.myTunesDataRepository2,
+                this.myTunesApplication().container.myTunesDataRepository,
                 languages = myTunesApplication().getSharedPreferences("Languages", Context.MODE_PRIVATE).getString("languages", "")!!
             )
         }
