@@ -55,6 +55,7 @@ import androidx.media3.session.MediaController
 import com.example.mytunes.model.AlbumData
 import com.example.mytunes.ui.elements.CoverImage
 import com.example.mytunes.ui.elements.SongBanner
+import com.example.mytunes.ui.elements.removeParenthesesContent
 import com.example.mytunes.ui.viewModel.AlbumUiState
 import com.google.common.util.concurrent.ListenableFuture
 @Composable
@@ -109,16 +110,6 @@ fun AlbumContent(
             repeatMode = RepeatMode.Restart
         ), label = ""
     )
-
-    val scroll by infiniteTransition.animateFloat(
-        initialValue = 1f,
-        targetValue = if (300f > boxWidth) -1f else 1f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(5000, easing = LinearEasing),
-            repeatMode = RepeatMode.Restart
-        ), label = "a"
-    )
-
     response.image[2].url?.let {
         CoverImage(
             photo = it,
@@ -135,14 +126,13 @@ fun AlbumContent(
         Box(
             modifier = modifier
                 .fillMaxWidth()
-                .padding(top = 100.dp),
-
+                .padding(top = 50.dp),
             contentAlignment = Alignment.Center
         ) {
             response.image[2].url?.let {
                 CoverImage(
                     photo = it,
-                    modifier = modifier.size(200.dp)
+                    modifier = modifier.size(100.dp)
                 )
             }
         }
@@ -157,29 +147,27 @@ fun AlbumContent(
                 modifier = Modifier
                     .fillMaxSize()
                     .onGloballyPositioned { coordinates ->
-                boxWidth = coordinates.size.width
-            }
-                .clipToBounds(),
+                        boxWidth = coordinates.size.width
+                    }
+                    .clipToBounds(),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    text = response.name.replace("&amp;", "and"),
+                    text = removeParenthesesContent(response.name.replace("&amp;", "and").replace("&quot;", "'")),
                     modifier = Modifier
-                        .offset(x = Dp(500 * scroll))
+                        .offset(x = offsetX.dp)
                         .padding(start = 0.dp, top = 4.dp)
                         .onGloballyPositioned {
-                                      textWidth = it.size.width
-                    },
+                            textWidth = it.size.width
+                        },
                     fontWeight = FontWeight.W400,
                     fontSize = 24.sp,
-                    maxLines = 1,
+                    maxLines = 2,
+                    overflow = TextOverflow.Visible
                 )
                 Row(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-
-
-
                     Text(
                         text = "${response.songCount} songs",
                         fontWeight = FontWeight.W400,
@@ -193,31 +181,26 @@ fun AlbumContent(
                         modifier = Modifier.size(10.dp)
                     )
                 }
-
-
-                    IconButton(
-                        onClick = {},
-                        modifier = Modifier
-                            .indication(interactionSource, indication = null)
-                            .size(66.dp)
-                            .padding()
-                    ) {
-                        Icon(
-                            imageVector = Icons.Filled.Circle,
-                            contentDescription = null,
-                            modifier = Modifier.size(460.dp),
-                            tint = MaterialTheme.colorScheme.primary
-                        )
-                        Icon(
-                            imageVector = Icons.Rounded.PlayArrow,
-                            contentDescription = null,
-                            modifier = Modifier.size(30.dp),
-                            tint = MaterialTheme.colorScheme.primaryContainer)
-
-                    }
-
-
-
+                IconButton(
+                    onClick = {},
+                    modifier = Modifier
+                        .indication(interactionSource, indication = null)
+                        .size(66.dp)
+                        .padding()
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Circle,
+                        contentDescription = null,
+                        modifier = Modifier.size(460.dp),
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                    Icon(
+                        imageVector = Icons.Rounded.PlayArrow,
+                        contentDescription = null,
+                        modifier = Modifier.size(30.dp),
+                        tint = MaterialTheme.colorScheme.primaryContainer
+                    )
+                }
             }
 
         }
@@ -226,17 +209,21 @@ fun AlbumContent(
         ) {
             LazyColumn(modifier = Modifier.fillMaxSize()) {
                 items(response.songs) { song ->
-                    SongBanner(
-                        photo = song.image[2].url,
-                        songName = song.name,
-                        artists = song.artists.primary,
-                        controllerFuture = controllerFuture,
-                        onSongClick = { /*TODO*/ },
-                        songUrl = song.downloadUrl[2],
-                        modifier = modifier.fillMaxWidth()
-                    )
-                }
+                    val photoIndex = song.image.size - 1
+                    val songUrlIndex = song.downloadUrl.size - 1
+                    if (photoIndex >= 0 && songUrlIndex >= 0) {
+                        SongBanner(
+                            photo = song.image[photoIndex].url,
+                            songName = song.name,
+                            artists = song.artists.primary,
+                            controllerFuture = controllerFuture,
+                            onSongClick = { /*TODO*/ },
+                            songUrl = song.downloadUrl[songUrlIndex],
+                            modifier = modifier.fillMaxWidth()
+                        )
+                    }
 
+                }
             }
         }
     }
