@@ -31,3 +31,9 @@ Creating A Pull Request
 
     5. Open a Pull Request
 
+## License
+
+Distributed under the MIT License.
+
+https://github.com/MinusMallard/My-Tunes/blob/main/LICENSE
+
