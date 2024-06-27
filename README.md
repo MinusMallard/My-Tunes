@@ -5,6 +5,8 @@ My Tunes leverages the extensive and diverse music library available through the
 
 The backbone of My Tunes' user interface and media handling capabilities is Jetpack Compose's Media3 library. This modern toolkit enables the creation of intuitive, responsive, and visually appealing user interfaces. With Media3, My Tunes delivers smooth media playback, efficient resource management, and an overall enhanced user experience.
 
+![Untitled](https://github.com/MinusMallard/My-Tunes/assets/116078997/086d8a1b-3a11-4621-883b-ed6bd1fec2c1)
+
 ## GettingStarted
 
 To clone this project into Android Studio follow this tutorial:
