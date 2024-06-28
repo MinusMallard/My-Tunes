@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.os.Build
 import androidx.annotation.RequiresExtension
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.initializer
@@ -14,9 +15,11 @@ import com.example.mytunes.ui.viewModel.ExploreCardViewModel
 import com.example.mytunes.ui.viewModel.HomeViewModel
 import com.example.mytunes.ui.viewModel.PlaylistViewModel
 import com.example.mytunes.ui.viewModel.SearchViewModel
+import com.example.mytunes.ui.viewModel.SongPlayerViewModel
 import com.example.mytunes.ui.viewModel.SplashViewModel
 
 object AppViewModelProvider {
+
     @RequiresExtension(extension = Build.VERSION_CODES.S, version = 7)
     val Factory = viewModelFactory {
         initializer {
@@ -50,6 +53,10 @@ object AppViewModelProvider {
 
         initializer {
             PlaylistViewModel(this.myTunesApplication().container.myTunesDataRepository)
+        }
+
+        initializer {
+            SongPlayerViewModel(this.myTunesApplication())
         }
     }
 }
