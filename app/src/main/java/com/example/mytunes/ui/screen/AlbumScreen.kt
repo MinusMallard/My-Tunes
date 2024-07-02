@@ -26,6 +26,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Circle
 import androidx.compose.material.icons.filled.MusicNote
+import androidx.compose.material.icons.rounded.Pause
 import androidx.compose.material.icons.rounded.PlayArrow
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -33,6 +34,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
@@ -53,10 +55,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.media3.session.MediaController
 import com.example.mytunes.model.AlbumData
+import com.example.mytunes.model.Song
 import com.example.mytunes.ui.elements.CoverImage
 import com.example.mytunes.ui.elements.SongBanner
 import com.example.mytunes.ui.elements.removeParenthesesContent
 import com.example.mytunes.ui.viewModel.AlbumUiState
+import com.example.mytunes.ui.viewModel.SongPlayerViewModel
 import com.google.common.util.concurrent.ListenableFuture
 @Composable
 fun AlbumScreen(
@@ -64,7 +68,8 @@ fun AlbumScreen(
     id: String? = null,
     loadAlbum:(String) -> Unit,
     response: AlbumUiState,
-    controllerFuture: ListenableFuture<MediaController>
+    controllerFuture: ListenableFuture<MediaController>,
+    playerViewModel: SongPlayerViewModel
 ) {
 
     LaunchedEffect(true) {
@@ -76,7 +81,12 @@ fun AlbumScreen(
         when(response) {
             is AlbumUiState.Success -> AlbumContent(
                 response = response.albumList.data,
-                controllerFuture = controllerFuture
+                controllerFuture = controllerFuture,
+                onSongClick = { songs: List<Song>, song: Song->
+                    playerViewModel.setCurrentIndex(songs.indexOf(song))
+                    playerViewModel.addSongList(songs.toMutableList())
+                },
+                isPlaying = playerViewModel.isPlaying.collectAsState().value
             )
             else -> {}
         }
@@ -88,7 +98,9 @@ fun AlbumScreen(
 fun AlbumContent(
     modifier: Modifier = Modifier,
     response: AlbumData,
-    controllerFuture: ListenableFuture<MediaController>
+    controllerFuture: ListenableFuture<MediaController>,
+    onSongClick: (List<Song>, Song) -> Unit,
+    isPlaying: Boolean,
 ) {
 
     val colorStops = arrayOf(
@@ -182,7 +194,9 @@ fun AlbumContent(
                     )
                 }
                 IconButton(
-                    onClick = {},
+                    onClick = {
+                        onSongClick(response.songs, response.songs[0])
+                    },
                     modifier = Modifier
                         .indication(interactionSource, indication = null)
                         .size(66.dp)
@@ -195,7 +209,7 @@ fun AlbumContent(
                         tint = MaterialTheme.colorScheme.primary
                     )
                     Icon(
-                        imageVector = Icons.Rounded.PlayArrow,
+                        imageVector = if(isPlaying) Icons.Rounded.Pause else Icons.Rounded.PlayArrow,
                         contentDescription = null,
                         modifier = Modifier.size(30.dp),
                         tint = MaterialTheme.colorScheme.primaryContainer
@@ -217,7 +231,7 @@ fun AlbumContent(
                             songName = song.name,
                             artists = song.artists.primary,
                             controllerFuture = controllerFuture,
-                            onSongClick = { /*TODO*/ },
+                            onSongClick = { onSongClick(response.songs, song) },
                             songUrl = song.downloadUrl[songUrlIndex],
                             modifier = modifier.fillMaxWidth()
                         )
