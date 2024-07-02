@@ -1,6 +1,5 @@
 package com.example.mytunes.ui.elements
 
-import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -23,21 +22,36 @@ import androidx.compose.material.icons.rounded.SkipPrevious
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.media3.common.MediaItem
+import androidx.compose.ui.unit.sp
+import androidx.media3.common.Player
+import androidx.media3.common.Player.EVENT_MEDIA_ITEM_TRANSITION
+import androidx.media3.common.Player.EVENT_TRACKS_CHANGED
 import androidx.media3.session.MediaController
 import com.example.mytunes.ui.viewModel.SongPlayerViewModel
 import com.google.common.util.concurrent.ListenableFuture
 import com.google.common.util.concurrent.MoreExecutors
-
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.guava.await
 
 @Composable
 fun BottomScreenPlayer(
@@ -45,11 +59,16 @@ fun BottomScreenPlayer(
     playerViewModel: SongPlayerViewModel,
     controllerFuture: ListenableFuture<MediaController>
 ) {
+    var controller: MediaController
     val isPlaying = playerViewModel.isPlaying.collectAsState().value
     val listOfSong: List<String> = playerViewModel.queue.collectAsState().value.map {
         it.downloadUrl[2].url
     }
     val currentIndex = playerViewModel.currentIndex.collectAsState().value
+    val currentSong = playerViewModel.currentSong.collectAsState().value
+
+
+
 
     HorizontalDivider(
         color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f),
@@ -66,11 +85,46 @@ fun BottomScreenPlayer(
             modifier = Modifier
                 .padding(4.dp)
                 .fillMaxSize(),
-            horizontalArrangement = Arrangement.End
+            horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Row {
-                Column {
-
+                if (currentSong != null) {
+                    CoverImage(
+                            photo = currentSong.image[2].url,
+                            modifier = Modifier
+                                .fillMaxHeight()
+                                .padding(2.dp)
+                                .size(60.dp)
+                        )
+                }
+                if (currentSong != null) {
+                    val allArtists = currentSong.artists.primary[0].name
+                    Column(
+                        modifier = Modifier
+                            .padding(start = 8.dp)
+                            .fillMaxHeight()
+                            .align(Alignment.CenterVertically)
+                            .width(180.dp)
+                    ) {
+                        Text(
+                            text = removeParenthesesContent(currentSong.name.replace("&amp;", "and").replace("&quot;", "'")),
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 12.sp,
+                            maxLines = 2,
+                            overflow = TextOverflow.Ellipsis,
+                            lineHeight = 12.sp,
+                            color = Color.White
+                        )
+                        Text(
+                            text = allArtists,
+                            fontWeight = FontWeight.Light,
+                            fontSize = 12.sp,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            color = Color.Gray,
+                            lineHeight = 12.sp
+                        )
+                    }
                 }
             }
             Row(
