@@ -1,9 +1,12 @@
 package com.example.mytunes.media
 
 import android.content.Intent
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.session.MediaSession
 import androidx.media3.session.MediaSessionService
+import com.example.mytunes.AppViewModelProvider
+import com.example.mytunes.ui.viewModel.SongPlayerViewModel
 
 class PlaybackService : MediaSessionService()  {
     private var mediaSession: MediaSession? = null
@@ -17,14 +20,7 @@ class PlaybackService : MediaSessionService()  {
         mediaSession = MediaSession.Builder(this, player).build()
     }
 
-//    override fun onTaskRemoved(rootIntent: Intent?) {
-//        val player = mediaSession?.player!!
-//        if (!player.playWhenReady
-//            || player.mediaItemCount == 0
-//            || player.playbackState == Player.STATE_ENDED) {
-//            stopSelf()
-//        }
-//    }
+
 
     override fun onDestroy() {
         mediaSession?.run {
