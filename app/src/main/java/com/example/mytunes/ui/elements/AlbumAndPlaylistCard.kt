@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -39,7 +40,7 @@ fun AlbumCard(
         Column {
             Log.d("MainActivity", album.image[2].url.toString())
             CoverImage(photo = album.image[2].url.toString(), modifier = Modifier
-                .size(200.dp)
+                .size(220.dp)
                 .padding(start = 8.dp,top = 4.dp, end = 8.dp, bottom = 8.dp)
             )
             Text(
@@ -71,10 +72,12 @@ fun PlaylistCard(
             )
             .padding(8.dp)
     ) {
-        Column {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
             Log.d("MainActivity", album.image[2].url.toString())
             CoverImage(photo = album.image[2].url.toString(), modifier = Modifier
-                .size(180.dp)
+                .size(220.dp)
                 .padding(start = 8.dp,top = 4.dp, end = 8.dp, bottom = 8.dp)
             )
             album.name?.let {
