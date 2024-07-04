@@ -1,6 +1,8 @@
 package com.example.mytunes.ui.screen
 
 import android.annotation.SuppressLint
+import android.os.Build
+import androidx.annotation.RequiresExtension
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
@@ -53,28 +55,31 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.media3.session.MediaController
+import com.example.mytunes.AppViewModelProvider
 import com.example.mytunes.model.AlbumData
 import com.example.mytunes.model.Song
 import com.example.mytunes.ui.elements.CoverImage
 import com.example.mytunes.ui.elements.SongBanner
 import com.example.mytunes.ui.elements.removeParenthesesContent
 import com.example.mytunes.ui.viewModel.AlbumUiState
+import com.example.mytunes.ui.viewModel.AlbumViewModel
 import com.example.mytunes.ui.viewModel.SongPlayerViewModel
 import com.google.common.util.concurrent.ListenableFuture
+@RequiresExtension(extension = Build.VERSION_CODES.S, version = 7)
 @Composable
 fun AlbumScreen(
     modifier: Modifier = Modifier,
     id: String? = null,
-    loadAlbum:(String) -> Unit,
-    response: AlbumUiState,
     controllerFuture: ListenableFuture<MediaController>,
     playerViewModel: SongPlayerViewModel
 ) {
-
+    val albumViewModel: AlbumViewModel = viewModel(factory = AppViewModelProvider.Factory)
+    val response = albumViewModel.albumUiState.collectAsState().value
     LaunchedEffect(true) {
         if (id != null) {
-            loadAlbum(id)
+            albumViewModel.loadAlbum(id)
         }
     }
     Box (modifier = modifier) {
@@ -209,7 +214,7 @@ fun AlbumContent(
                         tint = MaterialTheme.colorScheme.primary
                     )
                     Icon(
-                        imageVector = if(isPlaying) Icons.Rounded.Pause else Icons.Rounded.PlayArrow,
+                        imageVector = Icons.Rounded.PlayArrow,
                         contentDescription = null,
                         modifier = Modifier.size(30.dp),
                         tint = MaterialTheme.colorScheme.primaryContainer
