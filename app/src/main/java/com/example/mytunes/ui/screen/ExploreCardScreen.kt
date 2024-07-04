@@ -33,7 +33,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.mytunes.model.Album
+import com.example.mytunes.model.Playlist
 import com.example.mytunes.ui.elements.AlbumCard
+import com.example.mytunes.ui.elements.PlaylistCard
 import com.example.mytunes.ui.viewModel.ExploreCardUiState
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 
@@ -101,7 +103,7 @@ fun ExploreCardScreen(
 
 @Composable
 fun ExploreCardContent(
-    albums: List<Album>,
+    albums: List<Playlist>,
     modifier: Modifier = Modifier,
     navigateTo: (String) -> Unit
 ) {
@@ -110,7 +112,7 @@ fun ExploreCardContent(
             columns = GridCells.Fixed(2),
         ) {
             items(albums) { album ->
-                AlbumCard(
+                PlaylistCard(
                     album = album,
                     navigateTo = navigateTo
                 )
