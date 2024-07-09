@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.mytunes.data.MyTunesDataRepository
 import com.example.mytunes.model.Album
 import com.example.mytunes.model.AlbumResponse
+import com.example.mytunes.model.PlaylistResponse
 import com.example.mytunes.ui.screen.SearchScreenState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -25,7 +26,7 @@ class ExploreCardViewModel (
         viewModelScope.launch {
             _uiState.update {
                 try {
-                    val response = myTunesDataRepository.getAlbums(query, 0, 40)
+                    val response = myTunesDataRepository.getPlaylists(query, 0, 80)
                     if (response.success) {
                         ExploreCardUiState.Success(
                             albums = response
@@ -46,6 +47,6 @@ sealed interface ExploreCardUiState {
 
     data object Error: ExploreCardUiState
     data class Success(
-        var albums: AlbumResponse
+        var albums: PlaylistResponse
     ): ExploreCardUiState
 }
