@@ -3,9 +3,7 @@ package com.example.mytunes.ui.screen
 import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -16,28 +14,21 @@ import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.LargeTopAppBar
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.MediumTopAppBar
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.mytunes.model.Album
 import com.example.mytunes.model.Playlist
-import com.example.mytunes.ui.elements.AlbumCard
 import com.example.mytunes.ui.elements.PlaylistCard
 import com.example.mytunes.ui.viewModel.ExploreCardUiState
-import com.google.accompanist.systemuicontroller.rememberSystemUiController
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
@@ -61,7 +52,7 @@ fun ExploreCardScreen(
                 CenterAlignedTopAppBar(
                     colors = TopAppBarDefaults.topAppBarColors(
                         containerColor = color,
-                        titleContentColor = Color.White,
+                        titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
                         scrolledContainerColor = color
                     ),
                     modifier = Modifier,
@@ -75,8 +66,11 @@ fun ExploreCardScreen(
                     },
                     navigationIcon = {
                         IconButton(onClick = {
-                            navigateTo("explore")
-                        }) {
+                            navigateTo("explore") },
+                            colors = IconButtonDefaults.iconButtonColors(
+                                contentColor = MaterialTheme.colorScheme.onBackground
+                            )
+                            ) {
                             Icon (
                                 imageVector = Icons.Filled.ArrowBackIosNew,
                                 contentDescription = null
@@ -119,7 +113,7 @@ fun ExploreCardContent(
             }
         }
     }
-
 }
+
 
 
