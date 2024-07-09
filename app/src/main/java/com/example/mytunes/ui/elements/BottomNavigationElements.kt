@@ -32,7 +32,7 @@ val items = listOf(
         route = "explore",
     ),
     BottomNavigationItem(
-        title = "",
+        title = "library",
         selectedIcon = Icons.AutoMirrored.Filled.List,
         unselectedIcon = Icons.AutoMirrored.Outlined.List,
         route = "library"
