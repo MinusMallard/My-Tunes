@@ -4,6 +4,9 @@ import android.net.http.HttpException
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresExtension
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollState
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.mytunes.data.MyTunesDataRepository
@@ -29,6 +32,8 @@ class HomeViewModel(
 
     private val _playlistsUiState = MutableStateFlow<PlaylistsUiState>(PlaylistsUiState.Loading)
     val playlistsUiState: StateFlow<PlaylistsUiState> = _playlistsUiState.asStateFlow()
+
+    val scrollState = LazyListState()
 
     init {
         getAllPlayListSongs()
