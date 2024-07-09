@@ -28,7 +28,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Circle
 import androidx.compose.material.icons.filled.MusicNote
-import androidx.compose.material.icons.rounded.Pause
 import androidx.compose.material.icons.rounded.PlayArrow
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -52,11 +51,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.media3.session.MediaController
 import com.example.mytunes.AppViewModelProvider
 import com.example.mytunes.model.AlbumData
 import com.example.mytunes.model.Song
@@ -66,13 +63,11 @@ import com.example.mytunes.ui.elements.removeParenthesesContent
 import com.example.mytunes.ui.viewModel.AlbumUiState
 import com.example.mytunes.ui.viewModel.AlbumViewModel
 import com.example.mytunes.ui.viewModel.SongPlayerViewModel
-import com.google.common.util.concurrent.ListenableFuture
 @RequiresExtension(extension = Build.VERSION_CODES.S, version = 7)
 @Composable
 fun AlbumScreen(
     modifier: Modifier = Modifier,
     id: String? = null,
-    controllerFuture: ListenableFuture<MediaController>,
     playerViewModel: SongPlayerViewModel
 ) {
     val albumViewModel: AlbumViewModel = viewModel(factory = AppViewModelProvider.Factory)
@@ -82,16 +77,14 @@ fun AlbumScreen(
             albumViewModel.loadAlbum(id)
         }
     }
-    Box (modifier = modifier) {
+    Box (modifier = modifier.fillMaxSize()) {
         when(response) {
             is AlbumUiState.Success -> AlbumContent(
                 response = response.albumList.data,
-                controllerFuture = controllerFuture,
                 onSongClick = { songs: List<Song>, song: Song->
                     playerViewModel.setCurrentIndex(songs.indexOf(song))
                     playerViewModel.addSongList(songs.toMutableList())
                 },
-                isPlaying = playerViewModel.isPlaying.collectAsState().value
             )
             else -> {}
         }
@@ -103,9 +96,7 @@ fun AlbumScreen(
 fun AlbumContent(
     modifier: Modifier = Modifier,
     response: AlbumData,
-    controllerFuture: ListenableFuture<MediaController>,
     onSongClick: (List<Song>, Song) -> Unit,
-    isPlaying: Boolean,
 ) {
 
     val colorStops = arrayOf(
@@ -235,9 +226,7 @@ fun AlbumContent(
                             photo = song.image[photoIndex].url,
                             songName = song.name,
                             artists = song.artists.primary,
-                            controllerFuture = controllerFuture,
                             onSongClick = { onSongClick(response.songs, song) },
-                            songUrl = song.downloadUrl[songUrlIndex],
                             modifier = modifier.fillMaxWidth()
                         )
                     }
