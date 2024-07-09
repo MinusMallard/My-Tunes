@@ -1,13 +1,9 @@
 package com.example.mytunes.ui.screen
 
-import android.annotation.SuppressLint
 import android.content.SharedPreferences
-import android.util.Log
-import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.scrollable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -25,9 +21,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -36,14 +30,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.toLowerCase
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.zIndex
 import androidx.compose.ui.unit.dp
 @Composable
 fun GetLanguages(
     sharedPreference: SharedPreferences,
-    navigateHome:() -> Unit
+    navigateHome:() -> Unit,
+    modifier: Modifier = Modifier
 ) {
 
     val langs = mutableListOf("Hindi", "English", "Punjabi", "Tamil",
@@ -67,12 +60,10 @@ fun GetLanguages(
     }
 
     Box(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
             .scrollable(orientation = Orientation.Vertical, state = rememberScrollState()) ,
-        contentAlignment = Alignment.Center
-        
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally
@@ -161,7 +152,8 @@ fun langButton(
         Text(
             text = language,
             fontSize = 18.sp,
-            fontWeight = FontWeight.Light
+            fontWeight = FontWeight.Light,
+            color = MaterialTheme.colorScheme.onPrimaryContainer
         )
     }
 
