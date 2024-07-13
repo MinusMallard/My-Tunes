@@ -15,4 +15,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "My Tunes"
 include(":app")
- 
+include(":benchmark")
