@@ -8,35 +8,20 @@ import androidx.annotation.RequiresExtension
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
-import androidx.compose.foundation.layout.width
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Pause
-import androidx.compose.material.icons.rounded.PlayArrow
-import androidx.compose.material.icons.rounded.SkipNext
-import androidx.compose.material.icons.rounded.SkipPrevious
-import androidx.compose.material3.Divider
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -68,15 +53,15 @@ import com.example.mytunes.ui.screen.ExploreCardScreen
 import com.example.mytunes.ui.screen.GetLanguages
 import com.example.mytunes.ui.screen.HomeScreen
 import com.example.mytunes.ui.screen.GetName
+import com.example.mytunes.ui.screen.LibraryScreen
+import com.example.mytunes.ui.screen.PlayerScreen
 import com.example.mytunes.ui.screen.PlaylistScreen
 import com.example.mytunes.ui.screen.SearchScreen
 import com.example.mytunes.ui.screen.SettingsScreen
 import com.example.mytunes.ui.screen.SplashScreen
-import com.example.mytunes.ui.viewModel.AlbumViewModel
 import com.example.mytunes.ui.viewModel.ExploreCardViewModel
 import com.example.mytunes.ui.viewModel.HomePageLoadState
 import com.example.mytunes.ui.viewModel.HomeViewModel
-import com.example.mytunes.ui.viewModel.PlaylistViewModel
 import com.example.mytunes.ui.viewModel.SearchViewModel
 import com.example.mytunes.ui.viewModel.SongPlayerViewModel
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
@@ -84,8 +69,6 @@ import com.google.common.util.concurrent.ListenableFuture
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
-
-
 
 @RequiresExtension(extension = Build.VERSION_CODES.S, version = 7)
 @SuppressLint("ComposableDestinationInComposeScope", "UnusedMaterial3ScaffoldPaddingParameter")
@@ -98,11 +81,17 @@ fun AppNavHost(
     sharedPre2: SharedPreferences
 ) {
     val systemUiController = rememberSystemUiController()
-    val darkTransparentColor = Color(0x80000000)
-    systemUiController.setStatusBarColor(
-        color = darkTransparentColor,
-        darkIcons = false
-    )
+    if (isSystemInDarkTheme()) {
+        systemUiController.setStatusBarColor(
+            color = Color.Transparent,
+            darkIcons = false
+        )
+    } else {
+        systemUiController.setStatusBarColor(
+            color = Color.Transparent,
+            darkIcons = true
+        )
+    }
 
 
     val currentTime = rememberSaveable { mutableStateOf(getCurrentTime()) }
@@ -134,12 +123,8 @@ fun AppNavHost(
     val playlists by homeViewModel.playlistsUiState.collectAsState()
     val searchViewModel: SearchViewModel = viewModel(factory = AppViewModelProvider.Factory)
     val response by searchViewModel.response.collectAsState()
-    val albumViewModel: AlbumViewModel = viewModel(factory = AppViewModelProvider.Factory)
-    val playlistViewModel: PlaylistViewModel = viewModel(factory = AppViewModelProvider.Factory)
     val searchType: String = searchViewModel.searchType.collectAsState().value
     val playerViewModel: SongPlayerViewModel = viewModel(factory = AppViewModelProvider.Factory)
-    val isPlaying = playerViewModel.isPlaying.collectAsState().value
-
 
     var cardText by rememberSaveable {
         mutableStateOf("")
@@ -155,7 +140,7 @@ fun AppNavHost(
             Column {
                 BottomScreenPlayer(
                     playerViewModel = playerViewModel,
-                    controllerFuture = controllerFuture
+                    navigateTo = {navController.navigate("player")}
                 )
                 NavigationBar(
                     containerColor = MaterialTheme.colorScheme.surface,
@@ -193,8 +178,6 @@ fun AppNavHost(
         ) {
             composable(
                 route = "splashScreen",
-                enterTransition = { fadeIn(animationSpec = tween(500)) },
-                exitTransition = { fadeOut(animationSpec = tween(500)) }
             ) {
                 SplashScreen(openAndPopUp = { route, popUp->
                     navController.navigate(route) {
@@ -205,8 +188,6 @@ fun AppNavHost(
             }
             composable(
                 route = "home",
-                enterTransition = {fadeIn(animationSpec = tween(500))},
-                exitTransition = { fadeOut(animationSpec = tween(500)) }
             ) {
                 HomeScreen(
                     greeting = greeting.value,
@@ -220,10 +201,10 @@ fun AppNavHost(
                     modifier = Modifier.padding(innerPadding),
 
                     getHomeContentData = homeViewModel::getAllPlayListSongs,
-                    playerViewModel = playerViewModel
+                    playerViewModel = playerViewModel,
+                    scrollState = homeViewModel.scrollState
                 )
             }
-
             composable(
                 route = "explore",
             ) {
@@ -236,7 +217,6 @@ fun AppNavHost(
                     searchResponse = {searchViewModel.search()},
                     response = response,
                     resetResponse = {searchViewModel.reset()},
-                    controllerFuture = controllerFuture,
                     changeSearchType = {searchViewModel.changeSearchType(it)},
                     provideCategory = {
                         cardText = it
@@ -251,7 +231,6 @@ fun AppNavHost(
                     modifier = Modifier.padding(innerPadding)
                 )
             }
-
             composable(
                 route = "card"
             ) {
@@ -268,7 +247,6 @@ fun AppNavHost(
                     }
                 )
             }
-
             composable(
                 route = "album/{albumId}",
                 arguments = listOf(
@@ -278,11 +256,7 @@ fun AppNavHost(
                 AlbumScreen(
                     modifier = Modifier.padding(bottom = innerPadding.calculateBottomPadding()),
                     id = backStackEntry.arguments?.getString("albumId"),
-                    loadAlbum = {
-                        albumViewModel.loadAlbum(it)
-                    },
-                    response = albumViewModel.albumUiState.collectAsState().value,
-                    controllerFuture = controllerFuture
+                    playerViewModel = playerViewModel
                 )
             }
 
@@ -295,11 +269,7 @@ fun AppNavHost(
                 PlaylistScreen(
                     modifier = Modifier.padding(bottom = innerPadding.calculateBottomPadding()),
                     id = it.arguments?.getString("playlistId"),
-                    loadAlbum = { album ->
-                                playlistViewModel.loadPlaylist(album)
-                    },
-                    response = playlistViewModel.playlistUiState.collectAsState().value,
-                    controllerFuture = controllerFuture,
+                    playerViewModel = playerViewModel
                 )
             }
             composable(
@@ -322,8 +292,6 @@ fun AppNavHost(
 
             composable(
                 route = "getLanguages",
-                enterTransition = { fadeIn(animationSpec = tween(durationMillis = 500))},
-                exitTransition = { fadeOut(animationSpec = tween(durationMillis = 50))}
             ) {
                 val context = LocalContext.current
                 GetLanguages(
@@ -334,7 +302,23 @@ fun AppNavHost(
                             context,
                             "Language saved - Please restart the app",
                             Toast.LENGTH_LONG).show()
-                    }
+                    },
+                    modifier = Modifier.padding(innerPadding)
+                )
+            }
+            composable(
+                route = "player",
+            ) {
+                PlayerScreen(
+                    modifier = Modifier.padding(innerPadding),
+                    playerViewModel = playerViewModel
+                )
+            }
+            composable(
+                route = "library"
+            ) {
+                LibraryScreen(
+                    modifier = Modifier.padding(innerPadding)
                 )
             }
         }
