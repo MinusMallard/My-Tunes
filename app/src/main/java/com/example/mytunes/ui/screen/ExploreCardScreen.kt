@@ -3,6 +3,7 @@ package com.example.mytunes.ui.screen
 import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -25,6 +26,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.sp
 import com.example.mytunes.model.Playlist
 import com.example.mytunes.ui.elements.PlaylistCard
@@ -34,6 +36,7 @@ import com.example.mytunes.ui.viewModel.ExploreCardUiState
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ExploreCardScreen(
+    paddingValues: Dp,
     modifier: Modifier = Modifier,
     category: String = "",
     color: Color,
@@ -41,11 +44,10 @@ fun ExploreCardScreen(
     response: ExploreCardUiState,
     navigateTo: (String) -> Unit
 ) {
-
     LaunchedEffect(true) {
         searchAlbum(category)
     }
-    Column(modifier = modifier.fillMaxSize()) {
+    Column(modifier = modifier.padding(bottom = paddingValues).fillMaxSize()) {
         val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
         Scaffold (
             topBar = {
@@ -91,7 +93,6 @@ fun ExploreCardScreen(
                 )
             }
         }
-
     }
 }
 
