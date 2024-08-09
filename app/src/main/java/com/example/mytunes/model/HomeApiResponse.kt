@@ -1,13 +1,16 @@
 package com.example.mytunes.model
 
+import androidx.compose.runtime.Immutable
 import com.google.gson.annotations.SerializedName
 
+@Immutable
 data class HomeApiResponse(
     @SerializedName("status") val status: String,
     @SerializedName("message") val message: String?,
     @SerializedName("data") val data: Data
 )
 
+@Immutable
 data class Data(
     @SerializedName("albums") val albums: List<HomeAlbum>,
     @SerializedName("playlists") val playlists: List<HomePlaylist>,
@@ -16,6 +19,7 @@ data class Data(
 
 )
 
+@Immutable
 data class Charts (
 
     @SerializedName("id") val id : Int,
@@ -29,11 +33,13 @@ data class Charts (
     @SerializedName("language") val language : String
 )
 
+@Immutable
 data class Trending (
     @SerializedName("songs") val songs : List<Song>,
     @SerializedName("albums") val albums : List<HomeAlbum>
 )
 
+@Immutable
 data class HomeAlbum(
     @SerializedName("id") val id: String,
     @SerializedName("name") val name: String,
@@ -50,6 +56,7 @@ data class HomeAlbum(
     @SerializedName("image") val image: List<HomeImage>,
 )
 
+@Immutable
 data class HomePlaylist(
     @SerializedName("id") val id: String,
     @SerializedName("userId") val userId: String,
@@ -65,6 +72,7 @@ data class HomePlaylist(
     @SerializedName("explicitContent") val explicitContent: String
 )
 
+@Immutable
 data class HomeArtist(
     @SerializedName("id") val id: String,
     @SerializedName("name") val name: String,
@@ -73,6 +81,7 @@ data class HomeArtist(
     @SerializedName("role") val role: String
 )
 
+@Immutable
 data class HomeImage(
     @SerializedName("quality") val quality: String,
     @SerializedName("link") val link: String

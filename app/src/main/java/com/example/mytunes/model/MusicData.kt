@@ -1,12 +1,15 @@
 package com.example.mytunes.model
 
+import androidx.compose.runtime.Immutable
 import com.google.gson.annotations.SerializedName
 
+@Immutable
 data class MusicData(
     @SerializedName("success") val success: Boolean,
     @SerializedName("data") val data: MusicDataDetails
 )
 
+@Immutable
 data class MusicDataDetails(
     @SerializedName("id") val id: String?,
     @SerializedName("name") val name: String?,
@@ -22,6 +25,8 @@ data class MusicDataDetails(
     @SerializedName("songs") val songs: List<Song>,
     @SerializedName("artists") val artists: List<PlaylistArtist>
 )
+
+@Immutable
 data class PlaylistArtist(
     @SerializedName("id") val id: String?,
     @SerializedName("name") val name: String?,
