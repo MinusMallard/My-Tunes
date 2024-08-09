@@ -60,11 +60,14 @@ import com.example.mytunes.model.Album
 import com.example.mytunes.model.AlbumResponse
 import com.example.mytunes.model.Playlist
 import com.example.mytunes.model.PlaylistResponse
+import com.example.mytunes.model.Song
 import com.example.mytunes.model.SongResponse
 import com.example.mytunes.ui.elements.AlbumCard
 import com.example.mytunes.ui.elements.PlaylistCard
 import com.example.mytunes.ui.elements.SongBanner
 import com.example.mytunes.ui.theme.Shape
+import com.example.mytunes.ui.viewModel.SongPlayerViewModel
+
 
 sealed interface SearchScreenState {
     data object Loading: SearchScreenState
@@ -84,6 +87,7 @@ sealed interface SearchScreenState {
     data object Error: SearchScreenState
 }
 
+
 @Composable
 fun SearchScreen(
     modifier: Modifier = Modifier,
@@ -97,6 +101,7 @@ fun SearchScreen(
     provideColor:(Color) -> Unit,
     navigateTo: (String) -> Unit,
     searchType: String,
+    songPlayerViewModel: SongPlayerViewModel
 ) {
     Box(
         modifier = Modifier
@@ -218,7 +223,11 @@ fun SearchScreen(
                     )
                     is SearchScreenState.Loading -> LoadingSearchScreen()
                     is SearchScreenState.SuccessSong -> ResponseScreen(
-                        response = response.searchSongs
+                        response = response.searchSongs,
+                        onSongClick = { songList: List<Song> ->
+                            songPlayerViewModel.setCurrentIndex(0)
+                            songPlayerViewModel.addSongList(songList.toMutableList())
+                        }
                     )
                     is SearchScreenState.SuccessPlaylist -> PlaylistResponse(
                         playlist = response.searchPlaylists.data.results,
@@ -306,7 +315,8 @@ fun LoadingSearchScreen() {
 
 @Composable
 fun ResponseScreen(
-    response: SongResponse
+    response: SongResponse,
+    onSongClick: (List<Song>) -> Unit
 ) {
     LazyColumn {
         items(response.data.results) { result ->
@@ -314,7 +324,9 @@ fun ResponseScreen(
                 photo = result.image[2].url,
                 songName = result.name,
                 artists = result.artists.all,
-                onSongClick = {  },
+                onSongClick = {
+                    onSongClick(listOf(result))
+                },
                 modifier = Modifier.fillMaxWidth()
             )
         }

@@ -1,18 +1,22 @@
 package com.example.mytunes.model
 
+import androidx.compose.runtime.Immutable
 import com.google.gson.annotations.SerializedName
 
+@Immutable
 data class SongResponse(
     @SerializedName("success") val success: Boolean,
     @SerializedName("data") val data: DataSong
 )
 
+@Immutable
 data class DataSong (
     @SerializedName("total") val total: Int,
     @SerializedName("start") val start: Int,
     @SerializedName("results") val results: List<Song>
 )
 
+@Immutable
 data class Song(
     @SerializedName("id") val id: String,
     @SerializedName("name") val name: String,
@@ -35,30 +39,34 @@ data class Song(
     @SerializedName("downloadUrl") val downloadUrl: List<DownloadUrl>
 )
 
+@Immutable
 data class Lyrics(
     @SerializedName("lyrics") val lyrics: String,
     @SerializedName("copyright") val copyright: String?,
     @SerializedName("snippet") val snippet: String
 )
 
+@Immutable
 data class SongAlbum(
     @SerializedName("id") val id: String?,
     @SerializedName("name") val name: String?,
     @SerializedName("url") val url: String?
 )
 
+@Immutable
 data class SongArtists(
     @SerializedName("primary") val primary: List<Artist>,
     @SerializedName("featured") val featured: List<Artist>,
     @SerializedName("all") val all: List<Artist>
 )
 
-
+@Immutable
 data class SongImage(
     @SerializedName("quality") val quality: String,
     @SerializedName("url") val url: String
 )
 
+@Immutable
 data class DownloadUrl(
     @SerializedName("quality") val quality: String,
     @SerializedName("url") val url: String
