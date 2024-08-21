@@ -120,10 +120,7 @@ dependencies {
 
     //System Ui Controller
     implementation("com.google.accompanist:accompanist-systemuicontroller:0.30.1")
-
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-guava:1.8.0")
-
     implementation("com.google.accompanist:accompanist-navigation-animation:0.35.1-alpha")
-
-
+    implementation(kotlin("script-runtime"))
 }
