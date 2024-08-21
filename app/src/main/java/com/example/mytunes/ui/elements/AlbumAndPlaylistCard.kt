@@ -38,7 +38,6 @@ fun AlbumCard(
             .padding(8.dp)
     ) {
         Column {
-            Log.d("MainActivity", album.image[2].url.toString())
             CoverImage(photo = album.image[2].url.toString(), modifier = Modifier
                 .size(220.dp)
                 .padding(start = 8.dp,top = 4.dp, end = 8.dp, bottom = 8.dp)
@@ -75,7 +74,6 @@ fun PlaylistCard(
         Column(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Log.d("MainActivity", album.image[2].url.toString())
             CoverImage(photo = album.image[2].url.toString(), modifier = Modifier
                 .size(220.dp)
                 .padding(start = 8.dp,top = 4.dp, end = 8.dp, bottom = 8.dp)
