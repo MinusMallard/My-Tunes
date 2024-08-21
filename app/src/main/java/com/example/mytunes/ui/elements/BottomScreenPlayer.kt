@@ -27,14 +27,8 @@ import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -44,8 +38,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.mytunes.ui.viewModel.SongPlayerViewModel
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 
 @SuppressLint("CoroutineCreationDuringComposition")
 @Composable
@@ -56,13 +48,8 @@ fun BottomScreenPlayer(
 ) {
     val isPlaying = playerViewModel.isPlaying.collectAsState().value
     val currentSong = playerViewModel.currentSong.collectAsState().value
-    val scope = rememberCoroutineScope()
-    var currentPosition by remember { mutableFloatStateOf(0f) }
     val progress = playerViewModel.progress.collectAsState().value
 
-//    LaunchedEffect(currentSong) {
-//        playerViewModel.startTrackingProgress()
-//    }
     HorizontalDivider(
         color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f),
         thickness = 1.dp
@@ -89,49 +76,44 @@ fun BottomScreenPlayer(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Row {
-                    if (currentSong != null) {
-                        CoverImage(
-                            photo = currentSong.image[2].url,
-                            modifier = Modifier
-                                .fillMaxHeight()
-                                .padding(2.dp)
-                                .size(60.dp)
+                    CoverImage(
+                        photo = currentSong!!.image[2].url,
+                        modifier = Modifier
+                            .fillMaxHeight()
+                            .padding(2.dp)
+                            .size(60.dp)
+                    )
+                    val allArtists = currentSong.artists.primary[0].name
+                    Column(
+                        modifier = Modifier
+                            .padding(start = 8.dp)
+                            .fillMaxHeight()
+                            .align(Alignment.CenterVertically)
+                    ) {
+                        Text(
+                            text = removeParenthesesContent(currentSong.name.replace("&amp;", "and").replace("&quot;", "'")),
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 12.sp,
+                            maxLines = 2,
+                            overflow = TextOverflow.Ellipsis,
+                            lineHeight = 12.sp,
+                            color = MaterialTheme.colorScheme.onBackground
                         )
-                    }
-                    if (currentSong != null) {
-                        val allArtists = currentSong.artists.primary[0].name
-                        Column(
-                            modifier = Modifier
-                                .padding(start = 8.dp)
-                                .fillMaxHeight()
-                                .align(Alignment.CenterVertically)
-                                .width(180.dp)
-                        ) {
-                            Text(
-                                text = removeParenthesesContent(currentSong.name.replace("&amp;", "and").replace("&quot;", "'")),
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 12.sp,
-                                maxLines = 2,
-                                overflow = TextOverflow.Ellipsis,
-                                lineHeight = 12.sp,
-                                color = MaterialTheme.colorScheme.onBackground
-                            )
-                            Text(
-                                text = allArtists,
-                                fontWeight = FontWeight.Light,
-                                fontSize = 12.sp,
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis,
-                                color = Color.Gray,
-                                lineHeight = 12.sp
-                            )
-                        }
+                        Text(
+                            text = allArtists,
+                            fontWeight = FontWeight.Light,
+                            fontSize = 12.sp,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            color = Color.Gray,
+                            lineHeight = 12.sp
+                        )
                     }
                 }
                 Row(
                     modifier = Modifier
                         .fillMaxHeight()
-                        .width(160.dp),
+                        ,
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
