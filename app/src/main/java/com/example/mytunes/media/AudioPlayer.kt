@@ -8,7 +8,9 @@ import androidx.media3.session.MediaSessionService
 import com.example.mytunes.AppViewModelProvider
 import com.example.mytunes.ui.viewModel.SongPlayerViewModel
 
-class PlaybackService : MediaSessionService()  {
+class PlaybackService(
+
+) : MediaSessionService()  {
     private var mediaSession: MediaSession? = null
 
     override fun onGetSession(controllerInfo: MediaSession.ControllerInfo): MediaSession? = mediaSession
@@ -19,8 +21,6 @@ class PlaybackService : MediaSessionService()  {
         val player = ExoPlayer.Builder(this).build()
         mediaSession = MediaSession.Builder(this, player).build()
     }
-
-
 
     override fun onDestroy() {
         mediaSession?.run {
@@ -40,6 +40,5 @@ class PlaybackService : MediaSessionService()  {
         }
         stopSelf()
     }
-
 
 }

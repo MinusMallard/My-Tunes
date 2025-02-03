@@ -16,6 +16,7 @@ import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface MyTunesApiService {
+
     @GET("api/search")
     suspend fun searchAll(
         @Query("query") search: String,

@@ -2,11 +2,8 @@ package com.example.mytunes.ui.viewModel
 
 import android.net.http.HttpException
 import android.os.Build
-import android.util.Log
 import androidx.annotation.RequiresExtension
 import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.rememberScrollState
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.mytunes.data.MyTunesDataRepository
@@ -43,14 +40,9 @@ class HomeViewModel(
     fun getAllPlayListSongs() {
         _homePageUiState.value = HomePageLoadState.Loading
         viewModelScope.launch {
-            Log.d("Lang", languages)
             _homePageUiState.update {
                 try {
                     val load = myTunesDataRepository2.getHomePageData(languages)
-                    Log.d("new", load.data.playlists.toString())
-                    Log.d("new", load.data.charts.toString())
-                    Log.d("new", load.data.albums.toString())
-                    Log.d("new", load.data.trending.toString())
                     if (load.status != "SUCCESS") {
                         HomePageLoadState.Error1
                     } else {
@@ -89,7 +81,6 @@ class HomeViewModel(
                     }
                 }
             }
-            Log.d("Playlists", playlists.toString())
         }
     }
 

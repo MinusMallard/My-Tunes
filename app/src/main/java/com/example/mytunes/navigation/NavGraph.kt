@@ -5,17 +5,26 @@ import android.content.SharedPreferences
 import android.os.Build
 import android.widget.Toast
 import androidx.annotation.RequiresExtension
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBars
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
@@ -36,6 +45,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.media3.session.MediaController
+import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -64,12 +74,15 @@ import com.example.mytunes.ui.viewModel.HomePageLoadState
 import com.example.mytunes.ui.viewModel.HomeViewModel
 import com.example.mytunes.ui.viewModel.SearchViewModel
 import com.example.mytunes.ui.viewModel.SongPlayerViewModel
+import com.google.accompanist.navigation.animation.AnimatedNavHost
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.google.common.util.concurrent.ListenableFuture
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
+
+@OptIn(ExperimentalAnimationApi::class, ExperimentalSharedTransitionApi::class)
 @RequiresExtension(extension = Build.VERSION_CODES.S, version = 7)
 @SuppressLint("ComposableDestinationInComposeScope", "UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
@@ -81,6 +94,7 @@ fun AppNavHost(
     sharedPre2: SharedPreferences
 ) {
     val systemUiController = rememberSystemUiController()
+
     if (isSystemInDarkTheme()) {
         systemUiController.setStatusBarColor(
             color = Color.Transparent,
@@ -93,17 +107,18 @@ fun AppNavHost(
         )
     }
 
-
     val currentTime = rememberSaveable { mutableStateOf(getCurrentTime()) }
     val greeting = rememberSaveable { mutableStateOf(getGreeting(currentTime.value)) }
     val currentBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = currentBackStackEntry?.destination?.route ?: ""
+
     var selectedIconIndex by rememberSaveable {
         mutableIntStateOf(0)
     }
 
     if (currentRoute == "home") selectedIconIndex = 0
     else if (currentRoute == "explore") selectedIconIndex = 1
+    else if (currentRoute == "library") selectedIconIndex = 2
 
     val homeViewModel: HomeViewModel = viewModel(factory = AppViewModelProvider.Factory)
     val homePageData by homeViewModel.homePageUiState.collectAsState()
@@ -138,188 +153,240 @@ fun AppNavHost(
     Scaffold(
         bottomBar = {
             Column {
-                BottomScreenPlayer(
-                    playerViewModel = playerViewModel,
-                    navigateTo = {navController.navigate("player")}
-                )
-                NavigationBar(
-                    containerColor = MaterialTheme.colorScheme.surface,
-                    contentColor = MaterialTheme.colorScheme.onSurface,
-                    modifier = Modifier.height(90.dp)
+                AnimatedVisibility(
+                    currentRoute != "player",
+                    enter = slideInVertically(initialOffsetY = { it }),
+                    exit = slideOutVertically(targetOffsetY = { it }),
                 ) {
-                    items.forEachIndexed { index, item ->
-                        NavigationBarItem(
-                            modifier = modifier,
-                            selected = selectedIconIndex == index,
-                            onClick = {
-                                navController.navigate(item.route)
-                                selectedIconIndex = index
-                            },
-                            icon = {
-                                Icon(
-                                    imageVector = if (selectedIconIndex == index) item.selectedIcon
-                                    else item.unselectedIcon,
-                                    contentDescription = "null"
+                    Column(
+
+                    ) {
+                        BottomScreenPlayer(
+                            playerViewModel = playerViewModel,
+                            navigateTo = { navController.navigate("player") }
+                        )
+                        HorizontalDivider()
+                        NavigationBar(
+                            containerColor = MaterialTheme.colorScheme.surface,
+                            contentColor = MaterialTheme.colorScheme.onSurface,
+                            modifier = Modifier.height(WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding() + 60.dp)
+                        ) {
+                            items.forEachIndexed { index, item ->
+                                NavigationBarItem(
+                                    modifier = modifier,
+                                    selected = selectedIconIndex == index,
+                                    onClick = {
+                                        if (currentRoute != item.route) {
+                                            navController.navigate(item.route) {
+
+                                                launchSingleTop = true
+                                                restoreState = true
+                                            }
+                                            selectedIconIndex = index
+                                        }
+                                    },
+                                    icon = {
+                                        Icon(
+                                            imageVector = if (selectedIconIndex == index) item.selectedIcon
+                                            else item.unselectedIcon,
+                                            contentDescription = "null"
+                                        )
+                                    }
                                 )
                             }
-                        )
+                        }
                     }
                 }
             }
-
         },
         contentWindowInsets = WindowInsets.statusBars
     ) {innerPadding ->
-        NavHost (
-            navController = navController,
-            startDestination = "splashScreen",
-            route = Graph.MAIN,
-            modifier = modifier
-        ) {
-            composable(
-                route = "splashScreen",
+        SharedTransitionLayout {
+            NavHost (
+                navController = navController,
+                startDestination = "splashScreen",
+                route = Graph.MAIN,
+                modifier = modifier
             ) {
-                SplashScreen(openAndPopUp = { route, popUp->
-                    navController.navigate(route) {
-                        launchSingleTop = true
-                        popUpTo(popUp) { inclusive = true}
-                    }
-                })
-            }
-            composable(
-                route = "home",
-            ) {
-                HomeScreen(
-                    greeting = greeting.value,
-                    name = sharedPre.getString("name", "")!!,
-                    homePageData = homePageData,
-                    playlists = playlists,
-                    controllerFuture = controllerFuture,
-                    navigateTo = {
-                        navController.navigate(it)
-                    },
-                    modifier = Modifier.padding(innerPadding),
-
-                    getHomeContentData = homeViewModel::getAllPlayListSongs,
-                    playerViewModel = playerViewModel,
-                    scrollState = homeViewModel.scrollState
-                )
-            }
-            composable(
-                route = "explore",
-            ) {
-                val searchText by searchViewModel.searchText.collectAsState()
-                SearchScreen(
-                    searchText = searchText,
-                    onSearchTextChange = {
-                        searchViewModel.updateSearchString(it)
-                    },
-                    searchResponse = {searchViewModel.search()},
-                    response = response,
-                    resetResponse = {searchViewModel.reset()},
-                    changeSearchType = {searchViewModel.changeSearchType(it)},
-                    provideCategory = {
-                        cardText = it
-                    },
-                    provideColor = {
-                        cardColor = it
-                    },
-                    navigateTo = {
-                        navController.navigate(it)
-                    },
-                    searchType = searchType,
-                    modifier = Modifier.padding(innerPadding)
-                )
-            }
-            composable(
-                route = "card"
-            ) {
-                val responseCard by exploreCardViewModel.uiState.collectAsState()
-                ExploreCardScreen(
-                    category = cardText,
-                    color = cardColor,
-                    searchAlbum = {
-                        exploreCardViewModel.searchAlbums(it)
-                                  },
-                    response = responseCard,
-                    navigateTo = {
-                        navController.navigate(it)
-                    }
-                )
-            }
-            composable(
-                route = "album/{albumId}",
-                arguments = listOf(
-                    navArgument("albumId"){ type = NavType.StringType }
-                )
-            ) { backStackEntry ->
-                AlbumScreen(
-                    modifier = Modifier.padding(bottom = innerPadding.calculateBottomPadding()),
-                    id = backStackEntry.arguments?.getString("albumId"),
-                    playerViewModel = playerViewModel
-                )
-            }
-
-            composable(
-                route = "playlist/{playlistId}",
-                arguments = listOf(
-                    navArgument("playlistId"){ type = NavType.StringType }
-                )
-            ) {
-                PlaylistScreen(
-                    modifier = Modifier.padding(bottom = innerPadding.calculateBottomPadding()),
-                    id = it.arguments?.getString("playlistId"),
-                    playerViewModel = playerViewModel
-                )
-            }
-            composable(
-                route = "settings"
-            ) {
-                SettingsScreen(
-                    modifier = Modifier.padding(innerPadding),
-                    navigateTo = {
-                        navController.navigate(it){ popUpTo("settings") {inclusive = true} }
-                    },
-                    changeName = {
-                        with (sharedPre.edit()) {
-                            putString("name", it)
-                            apply()
+                composable(
+                    route = "splashScreen",
+                ) {
+                    SplashScreen(openAndPopUp = { route, popUp->
+                        navController.navigate(route) {
+                            launchSingleTop = true
+                            popUpTo(popUp) { inclusive = true}
                         }
-                        navController.navigate("home")
-                    }
-                )
-            }
+                    })
+                }
+                composable(
+                    route = "home",
+                ) {
+                    HomeScreen(
+                        greeting = greeting.value,
+                        name = sharedPre.getString("name", "")!!,
+                        homePageData = homePageData,
+                        playlists = playlists,
+                        controllerFuture = controllerFuture,
+                        navigateTo = {
+                            navController.navigate(it) {
+                                popUpTo(navController.graph.findStartDestination().id) {
+                                    saveState = true
+                                }
+                                launchSingleTop = true
+                                restoreState = true
+                            }
+                        },
+                        modifier = Modifier.padding(innerPadding),
 
-            composable(
-                route = "getLanguages",
-            ) {
-                val context = LocalContext.current
-                GetLanguages(
-                    sharedPreference = sharedPre2,
-                    navigateHome = {
-                        navController.navigate("home") { popUpTo("getLanguages") {inclusive = true} }
-                        Toast.makeText(
-                            context,
-                            "Language saved - Please restart the app",
-                            Toast.LENGTH_LONG).show()
-                    },
-                    modifier = Modifier.padding(innerPadding)
-                )
-            }
-            composable(
-                route = "player",
-            ) {
-                PlayerScreen(
-                    modifier = Modifier.padding(innerPadding),
-                    playerViewModel = playerViewModel
-                )
-            }
-            composable(
-                route = "library"
-            ) {
-                LibraryScreen(
-                    modifier = Modifier.padding(innerPadding)
-                )
+                        getHomeContentData = homeViewModel::getAllPlayListSongs,
+                        playerViewModel = playerViewModel,
+                        scrollState = homeViewModel.scrollState
+                    )
+                }
+                composable(
+                    route = "explore",
+                ) {
+                    val searchText by searchViewModel.searchText.collectAsState()
+                    SearchScreen(
+                        searchText = searchText,
+                        onSearchTextChange = {
+                            searchViewModel.updateSearchString(it)
+                        },
+                        searchResponse = {searchViewModel.search()},
+                        response = response,
+                        resetResponse = {searchViewModel.reset()},
+                        changeSearchType = {searchViewModel.changeSearchType(it)},
+                        provideCategory = {
+                            cardText = it
+                        },
+                        provideColor = {
+                            cardColor = it
+                        },
+                        navigateTo = {
+                            navController.navigate(it) {
+                                popUpTo(navController.graph.findStartDestination().id) {
+                                    saveState = true
+                                }
+                                launchSingleTop = true
+                                restoreState = true
+                            }
+                        },
+                        searchType = searchType,
+                        modifier = Modifier.padding(innerPadding),
+                        songPlayerViewModel = playerViewModel
+                    )
+                }
+                composable(
+                    route = "card"
+                ) {
+                    val responseCard by exploreCardViewModel.uiState.collectAsState()
+                    ExploreCardScreen(
+                        paddingValues = innerPadding.calculateBottomPadding(),
+                        modifier = Modifier,
+                        category = cardText,
+                        color = cardColor,
+                        searchAlbum = {
+                            exploreCardViewModel.searchAlbums(it)
+                        },
+                        response = responseCard,
+                        navigateTo = {
+                            navController.navigate(it) {
+                                popUpTo(navController.graph.findStartDestination().id) {
+                                    saveState = true
+                                }
+                                launchSingleTop = true
+                                restoreState = true
+                            }
+                        },
+                        navigateUp = {navController.navigateUp()}
+                    )
+                }
+                composable(
+                    route = "album/{albumId}",
+                    arguments = listOf(
+                        navArgument("albumId"){ type = NavType.StringType }
+                    )
+                ) { backStackEntry ->
+                    AlbumScreen(
+                        modifier = Modifier.padding(bottom = innerPadding.calculateBottomPadding()),
+                        id = backStackEntry.arguments?.getString("albumId"),
+                        playerViewModel = playerViewModel
+                    )
+                }
+
+                composable(
+                    route = "playlist/{playlistId}",
+                    arguments = listOf(
+                        navArgument("playlistId"){ type = NavType.StringType }
+                    )
+                ) {
+                    PlaylistScreen(
+                        modifier = Modifier
+                            .padding(bottom = innerPadding.calculateBottomPadding())
+                            .sharedBounds(
+                                sharedContentState = rememberSharedContentState("playlist{$id}"),
+                                animatedVisibilityScope = this
+                            ),
+                        id = it.arguments?.getString("playlistId"),
+                        playerViewModel = playerViewModel
+                    )
+                }
+                composable(
+                    route = "settings"
+                ) {
+                    SettingsScreen(
+                        modifier = Modifier.padding(innerPadding),
+                        navigateTo = {
+                            navController.navigate(it){ popUpTo("settings") {inclusive = true} }
+                        },
+                        changeName = {
+                            with (sharedPre.edit()) {
+                                putString("name", it)
+                                apply()
+                            }
+                            navController.navigate("home") {
+                                popUpTo(navController.graph.findStartDestination().id) {
+                                    saveState = true
+                                }
+                                launchSingleTop = true
+                                restoreState = true
+                            }
+                        }
+                    )
+                }
+
+                composable(
+                    route = "getLanguages",
+                ) {
+                    val context = LocalContext.current
+                    GetLanguages(
+                        sharedPreference = sharedPre2,
+                        navigateHome = {
+                            navController.navigate("home") { popUpTo("getLanguages") {inclusive = true} }
+                            Toast.makeText(
+                                context,
+                                "Language saved - Please restart the app",
+                                Toast.LENGTH_LONG).show()
+                        },
+                        modifier = Modifier.padding(innerPadding)
+                    )
+                }
+                composable(
+                    route = "player",
+                ) {
+                    PlayerScreen(
+                        modifier = Modifier.padding(innerPadding),
+                        playerViewModel = playerViewModel,
+                        navController = navController
+                    )
+                }
+                composable(
+                    route = "library"
+                ) {
+                    LibraryScreen(
+                        modifier = Modifier.padding(innerPadding)
+                    )
+                }
             }
         }
         Box(
@@ -405,7 +472,7 @@ fun NavGraphBuilder.authNavGraph (navController: NavHostController, sharedPre: S
         ) {
             GetLanguages(
                 sharedPreference = sharedPre2,
-                navigateHome = {navController.navigate(Graph.MAIN) { popUpTo("getLanguage") {inclusive = true} } }
+                navigateHome = {navController.navigate(Graph.MAIN) { popUpTo(navController.graph.id) {inclusive = true} } }
             )
         }
     }

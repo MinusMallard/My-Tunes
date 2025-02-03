@@ -55,6 +55,7 @@ import androidx.navigation.NavHostController
 import com.example.mytunes.ui.elements.CoverImage
 import com.example.mytunes.ui.elements.SongBanner
 import com.example.mytunes.ui.viewModel.SongPlayerViewModel
+import com.google.android.material.slider.Slider
 
 
 @OptIn(ExperimentalAnimationApi::class, ExperimentalMaterial3Api::class)
@@ -72,6 +73,8 @@ fun PlayerScreen(
     val queue = playerViewModel.queue.collectAsState().value
     
     val infiniteTransition = rememberInfiniteTransition(label = "rotate image")
+
+    // Animation for rotating thumbnail
     val rotateAnim by infiniteTransition.animateFloat(
         initialValue = 0f,
         targetValue = 360f,
@@ -145,6 +148,7 @@ fun PlayerScreen(
                 progress = progress,
                 seekTo = {playerViewModel.seekTo(it)}
             )
+            Spacer(modifier = Modifier.height(20.dp))
 
             Row(
                 modifier = Modifier
@@ -211,7 +215,7 @@ fun PlayerScreen(
     val scaffoldState = rememberBottomSheetScaffoldState()
     BottomSheetScaffold(
         scaffoldState = scaffoldState,
-        sheetPeekHeight = 290.dp,
+        sheetPeekHeight = 0.dp,
         modifier = modifier.fillMaxWidth(),
         sheetContent = {
             LazyColumn(
@@ -226,7 +230,7 @@ fun PlayerScreen(
                     )
                 }
             }
-        }
+        },
     ) {
 
     }
@@ -238,14 +242,26 @@ fun SliderView(
     modifier: Modifier = Modifier,
     seekTo: (Float) -> Unit
 ) {
+
+//    Slider(
+//        value = progress,
+//        onValueChange = {
+//            seekTo(it) },
+//        modifier = modifier
+//            .padding(horizontal = 16.dp)
+//            .fillMaxWidth(),
+//        valueRange = 0f..1f,
+//        steps = 1000
+//    )
     Slider(
         value = progress,
         onValueChange = {
             seekTo(it) },
         modifier = modifier
             .padding(horizontal = 16.dp)
-            .fillMaxWidth(),
-        valueRange = 0f..1f,
-        steps = 1000
+            .fillMaxWidth()
+            .height(1.dp),
     )
+
+
 }

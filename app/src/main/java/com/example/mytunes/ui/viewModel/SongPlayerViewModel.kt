@@ -4,15 +4,9 @@ import android.annotation.SuppressLint
 import android.content.ComponentName
 import android.net.Uri
 import android.util.Log
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.media3.common.MediaItem
-import androidx.media3.common.MediaItem.fromUri
 import androidx.media3.common.MediaMetadata
 import androidx.media3.common.Player
 import androidx.media3.common.Player.EVENT_MEDIA_ITEM_TRANSITION
@@ -24,15 +18,11 @@ import com.example.mytunes.media.PlaybackService
 import com.example.mytunes.model.Song
 import com.google.common.util.concurrent.ListenableFuture
 import com.google.common.util.concurrent.MoreExecutors
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.guava.await
-import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
 @SuppressLint("StaticFieldLeak")
@@ -76,6 +66,7 @@ class SongPlayerViewModel @SuppressLint("StaticFieldLeak") constructor(
                         }
                         if (events.contains(Player.EVENT_IS_PLAYING_CHANGED)) {
                             _isPlaying.value = controller.isPlaying
+
                             startTrackingProgress()
                         }
                         if (events.contains(Player.EVENT_SHUFFLE_MODE_ENABLED_CHANGED)) {
@@ -113,6 +104,10 @@ class SongPlayerViewModel @SuppressLint("StaticFieldLeak") constructor(
 
     private val _currentIndex = MutableStateFlow<Int>(0)
     val currentIndex : StateFlow<Int> = _currentIndex.asStateFlow()
+
+    private val _currentSongId = MutableStateFlow<String?>(null)
+    val currentSongId: StateFlow<String?> = _currentSongId.asStateFlow()
+
     fun removeSongFromQueue(song: Song) {
         _queue.value -= song
     }

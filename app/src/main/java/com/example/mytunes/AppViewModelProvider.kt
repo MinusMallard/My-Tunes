@@ -1,15 +1,12 @@
 package com.example.mytunes
 
 import android.content.Context
-import android.content.SharedPreferences
 import android.os.Build
 import androidx.annotation.RequiresExtension
-import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
-import com.example.mytunes.ui.screen.PlaylistScreen
 import com.example.mytunes.ui.viewModel.AlbumViewModel
 import com.example.mytunes.ui.viewModel.ExploreCardViewModel
 import com.example.mytunes.ui.viewModel.HomeViewModel

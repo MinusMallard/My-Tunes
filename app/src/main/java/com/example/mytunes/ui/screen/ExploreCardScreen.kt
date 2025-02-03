@@ -42,12 +42,13 @@ fun ExploreCardScreen(
     color: Color,
     searchAlbum:(String) -> Unit,
     response: ExploreCardUiState,
-    navigateTo: (String) -> Unit
+    navigateTo: (String) -> Unit,
+    navigateUp:() -> Unit,
 ) {
     LaunchedEffect(true) {
         searchAlbum(category)
     }
-    Column(modifier = modifier.padding(bottom = paddingValues).fillMaxSize()) {
+    Column(modifier = modifier.fillMaxSize()) {
         val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
         Scaffold (
             topBar = {
@@ -68,7 +69,7 @@ fun ExploreCardScreen(
                     },
                     navigationIcon = {
                         IconButton(onClick = {
-                            navigateTo("explore") },
+                            navigateUp() },
                             colors = IconButtonDefaults.iconButtonColors(
                                 contentColor = MaterialTheme.colorScheme.onBackground
                             )

@@ -236,5 +236,3 @@ fun AlbumContent(
         }
     }
 }
-
-

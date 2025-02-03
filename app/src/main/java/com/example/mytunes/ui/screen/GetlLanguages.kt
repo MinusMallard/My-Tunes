@@ -7,14 +7,19 @@ import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.items
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.MaterialTheme
@@ -59,14 +64,16 @@ fun GetLanguages(
         mutableStateOf(false)
     }
 
+
     Box(
-        modifier = modifier
+        modifier = Modifier
+            .windowInsetsPadding(WindowInsets.safeDrawing)
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
             .scrollable(orientation = Orientation.Vertical, state = rememberScrollState()) ,
     ) {
         Column(
-            horizontalAlignment = Alignment.CenterHorizontally
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Text(
                 text = "Select languages",
@@ -78,18 +85,6 @@ fun GetLanguages(
                 color = MaterialTheme.colorScheme.onBackground
             )
             Spacer(modifier = Modifier.height(20.dp))
-            LazyVerticalStaggeredGrid(
-                columns = StaggeredGridCells.Adaptive(150.dp),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .align(Alignment.CenterHorizontally)
-            ) {
-                items(langs) { lang ->
-                    selectedLang[langs.indexOf(lang)] = langButton(selectedLang = selectedLang, index = langs.indexOf(lang), language = lang)
-                    enabled = selectedLang.contains(true)
-                }
-                item { Spacer(modifier = Modifier.height(20.dp)) }
-            }
             TextButton(
                 onClick = {
                     for (item in langs) {
@@ -111,6 +106,19 @@ fun GetLanguages(
                     text = "Next ->",
                     fontSize = 18.sp,
                 )
+            }
+            LazyVerticalStaggeredGrid(
+                columns = StaggeredGridCells.Adaptive(150.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .align(Alignment.CenterHorizontally)
+            ) {
+                items(langs) { lang ->
+                    selectedLang[langs.indexOf(lang)] = langButton(selectedLang = selectedLang, index = langs.indexOf(lang), language = lang)
+                    enabled = selectedLang.contains(true)
+                }
+                item { Spacer(modifier = Modifier.height(20.dp)) }
+
             }
         }
     }

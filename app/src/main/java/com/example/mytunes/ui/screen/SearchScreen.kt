@@ -5,6 +5,8 @@ import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -41,13 +43,16 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -67,7 +72,6 @@ import com.example.mytunes.ui.elements.PlaylistCard
 import com.example.mytunes.ui.elements.SongBanner
 import com.example.mytunes.ui.theme.Shape
 import com.example.mytunes.ui.viewModel.SongPlayerViewModel
-
 
 sealed interface SearchScreenState {
     data object Loading: SearchScreenState
@@ -103,17 +107,27 @@ fun SearchScreen(
     searchType: String,
     songPlayerViewModel: SongPlayerViewModel
 ) {
+    val keyboardController = LocalSoftwareKeyboardController.current
+    val focusManager = LocalFocusManager.current
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background),
+            .pointerInput(Unit) {
+                // closes keyboard whenever user taps anywhere on the screen
+                detectTapGestures(onTap = {
+                    keyboardController?.hide()
+                    focusManager.clearFocus()
+                })
+                detectDragGestures(onDrag = { _, _ ->
+                    keyboardController?.hide()
+                    focusManager.clearFocus()
+                })
+            }.background(MaterialTheme.colorScheme.background)
     ) {
-        val keyboardController = LocalSoftwareKeyboardController.current
         Column(
             modifier
         ) {
             Row(
-
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 AnimatedVisibility(visible = response is SearchScreenState.SuccessSong
@@ -167,9 +181,9 @@ fun SearchScreen(
                     ),
                     singleLine = true,
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = MaterialTheme.colorScheme.onBackground,
-                        unfocusedBorderColor = MaterialTheme.colorScheme.onBackground,
-                        focusedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                        focusedBorderColor = MaterialTheme.colorScheme.background,
+                        unfocusedBorderColor = MaterialTheme.colorScheme.background,
+                        focusedContainerColor = MaterialTheme.colorScheme.background,
                         unfocusedContainerColor = MaterialTheme.colorScheme.primaryContainer,
                         cursorColor = MaterialTheme.colorScheme.onPrimaryContainer,
                         unfocusedPlaceholderColor = MaterialTheme.colorScheme.onPrimaryContainer,
@@ -181,7 +195,20 @@ fun SearchScreen(
                     shape = MaterialTheme.shapes.medium
                 )
             }
-            Row {
+            Row(
+                modifier = Modifier
+                    .pointerInput(Unit) {
+                    // closes keyboard whenever user taps anywhere on the screen
+                    detectTapGestures(onTap = {
+                        keyboardController?.hide()
+                        focusManager.clearFocus()
+                    })
+                    detectDragGestures(onDrag = { _, _ ->
+                        keyboardController?.hide()
+                        focusManager.clearFocus()
+                    })
+                }
+            ) {
                 if (response is SearchScreenState.SuccessPlaylist
                     || response is SearchScreenState.SuccessSong
                     || response is SearchScreenState.SuccessAlbum
@@ -213,6 +240,17 @@ fun SearchScreen(
             Column(
                 modifier = Modifier
                     .fillMaxSize()
+                    .pointerInput(Unit) {
+                        // closes keyboard whenever user taps anywhere on the screen
+                        detectTapGestures(onTap = {
+                            keyboardController?.hide()
+                            focusManager.clearFocus()
+                        })
+                        detectDragGestures(onDrag = { _, _ ->
+                            keyboardController?.hide()
+                            focusManager.clearFocus()
+                        })
+                    }
                     .padding(top = 8.dp, start = 8.dp, end = 8.dp)
             ) {
                 when (response) {
@@ -227,6 +265,8 @@ fun SearchScreen(
                         onSongClick = { songList: List<Song> ->
                             songPlayerViewModel.setCurrentIndex(0)
                             songPlayerViewModel.addSongList(songList.toMutableList())
+                            keyboardController?.hide()
+                            focusManager.clearFocus()
                         }
                     )
                     is SearchScreenState.SuccessPlaylist -> PlaylistResponse(
@@ -237,7 +277,11 @@ fun SearchScreen(
                         album = response.searchAlbums.data.results,
                         navigateTo = navigateTo
                     )
-                    else -> ErrorScreen()
+                    else -> {
+                        ErrorScreen()
+                        keyboardController?.hide()
+                        focusManager.clearFocus()
+                    }
                 }
             }
         }
