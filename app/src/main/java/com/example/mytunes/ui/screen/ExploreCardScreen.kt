@@ -25,6 +25,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.sp
@@ -48,9 +49,10 @@ fun ExploreCardScreen(
     LaunchedEffect(true) {
         searchAlbum(category)
     }
-    Column(modifier = modifier.fillMaxSize()) {
-        val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
+
+        val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
         Scaffold (
+            modifier = Modifier.padding(bottom = paddingValues).nestedScroll(scrollBehavior.nestedScrollConnection),
             topBar = {
                 CenterAlignedTopAppBar(
                     colors = TopAppBarDefaults.topAppBarColors(
@@ -89,12 +91,12 @@ fun ExploreCardScreen(
                 is ExploreCardUiState.Error -> ErrorScreen()
                 is ExploreCardUiState.Success -> ExploreCardContent(
                     albums = response.albums.data.results,
-                    modifier = Modifier.padding(innerPadding),
+                    modifier = Modifier.padding(top = innerPadding.calculateTopPadding()),
                     navigateTo = navigateTo,
                 )
             }
         }
-    }
+
 }
 
 @Composable

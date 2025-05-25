@@ -53,6 +53,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.mytunes.AppViewModelProvider
 import com.example.mytunes.model.AlbumData
@@ -72,6 +73,8 @@ fun AlbumScreen(
 ) {
     val albumViewModel: AlbumViewModel = viewModel(factory = AppViewModelProvider.Factory)
     val response = albumViewModel.albumUiState.collectAsState().value
+    val songIndex = playerViewModel.currentIndex.collectAsStateWithLifecycle()
+    val songs = playerViewModel.queue.collectAsStateWithLifecycle()
     LaunchedEffect(true) {
         if (id != null) {
             albumViewModel.loadAlbum(id)
@@ -85,6 +88,7 @@ fun AlbumScreen(
                     playerViewModel.setCurrentIndex(songs.indexOf(song))
                     playerViewModel.addSongList(songs.toMutableList())
                 },
+                songId = if (songs.value.isNotEmpty()) songs.value[songIndex.value].id else null,
             )
             else -> {}
         }
@@ -97,6 +101,7 @@ fun AlbumContent(
     modifier: Modifier = Modifier,
     response: AlbumData,
     onSongClick: (List<Song>, Song) -> Unit,
+    songId: String? = ""
 ) {
 
     val colorStops = arrayOf(
@@ -227,7 +232,9 @@ fun AlbumContent(
                             songName = song.name,
                             artists = song.artists.primary,
                             onSongClick = { onSongClick(response.songs, song) },
-                            modifier = modifier.fillMaxWidth()
+                            modifier = modifier.fillMaxWidth(),
+                            songId = "",
+                            song = song
                         )
                     }
 

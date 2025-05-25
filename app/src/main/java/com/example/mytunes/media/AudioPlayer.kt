@@ -8,9 +8,7 @@ import androidx.media3.session.MediaSessionService
 import com.example.mytunes.AppViewModelProvider
 import com.example.mytunes.ui.viewModel.SongPlayerViewModel
 
-class PlaybackService(
-
-) : MediaSessionService()  {
+class PlaybackService() : MediaSessionService()  {
     private var mediaSession: MediaSession? = null
 
     override fun onGetSession(controllerInfo: MediaSession.ControllerInfo): MediaSession? = mediaSession

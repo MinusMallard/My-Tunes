@@ -90,7 +90,6 @@ fun AppNavHost(
     navController: NavHostController = rememberNavController(),
     @SuppressLint("ModifierParameter") modifier: Modifier = Modifier,
     sharedPre: SharedPreferences,
-    controllerFuture: ListenableFuture<MediaController>,
     sharedPre2: SharedPreferences
 ) {
     val systemUiController = rememberSystemUiController()
@@ -226,7 +225,6 @@ fun AppNavHost(
                         name = sharedPre.getString("name", "")!!,
                         homePageData = homePageData,
                         playlists = playlists,
-                        controllerFuture = controllerFuture,
                         navigateTo = {
                             navController.navigate(it) {
                                 popUpTo(navController.graph.findStartDestination().id) {
@@ -282,7 +280,7 @@ fun AppNavHost(
                     val responseCard by exploreCardViewModel.uiState.collectAsState()
                     ExploreCardScreen(
                         paddingValues = innerPadding.calculateBottomPadding(),
-                        modifier = Modifier,
+                        modifier = Modifier.padding(innerPadding),
                         category = cardText,
                         color = cardColor,
                         searchAlbum = {
@@ -441,7 +439,6 @@ fun RootNavigationGraph(
         composable(route = Graph.MAIN) {
             AppNavHost(
                 sharedPre = sharedPre,
-                controllerFuture = controllerFuture,
                 sharedPre2 = sharedPref2
             )
         }

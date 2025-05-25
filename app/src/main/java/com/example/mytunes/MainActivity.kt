@@ -4,7 +4,6 @@ import android.content.ComponentName
 import android.content.Context
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -15,27 +14,12 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.media3.common.Player
-import androidx.media3.common.Player.EVENT_MEDIA_ITEM_TRANSITION
-import androidx.media3.common.Player.EVENT_MEDIA_METADATA_CHANGED
-import androidx.media3.common.Player.EVENT_TIMELINE_CHANGED
-import androidx.media3.common.Player.EVENT_TRACKS_CHANGED
 import androidx.media3.session.MediaController
 import androidx.media3.session.SessionToken
 import com.example.mytunes.media.PlaybackService
 import com.example.mytunes.navigation.RootNavigationGraph
-import com.example.mytunes.ui.theme.MyTunes
 import com.example.mytunes.ui.theme.MyTunesTheme
-import com.example.mytunes.ui.viewModel.SongPlayerViewModel
 import com.google.common.util.concurrent.ListenableFuture
-import kotlinx.coroutines.awaitCancellation
-import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
     private lateinit var controllerFuture: ListenableFuture<MediaController>

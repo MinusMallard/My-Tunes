@@ -48,6 +48,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.mytunes.AppViewModelProvider
 import com.example.mytunes.model.PlaylistData
@@ -67,7 +68,9 @@ fun PlaylistScreen(
     playerViewModel: SongPlayerViewModel,
 ) {
     val playlistViewModel: PlaylistViewModel = viewModel(factory = AppViewModelProvider.Factory)
-    val response = playlistViewModel.playlistUiState.collectAsState().value
+    val response = playlistViewModel.playlistUiState.collectAsStateWithLifecycle().value
+    val songIndex = playerViewModel.currentIndex.collectAsStateWithLifecycle()
+    val songs = playerViewModel.queue.collectAsStateWithLifecycle()
 
     LaunchedEffect(true) {
         if (id != null) {
@@ -82,7 +85,9 @@ fun PlaylistScreen(
                 onSongClick = { songs: List<Song>, song: Song->
                     playerViewModel.setCurrentIndex(songs.indexOf(song))
                     playerViewModel.addSongList(songs.toMutableList())
-                })
+                },
+                songId = if (songs.value.isNotEmpty()) songs.value[songIndex.value].id else null,
+            )
             else -> {}
         }
     }
@@ -94,6 +99,7 @@ fun PlaylistContent(
     modifier: Modifier = Modifier,
     response: PlaylistData,
     onSongClick: (List<Song>, Song) -> Unit,
+    songId: String? = ""
 ) {
 
     val colorStops = arrayOf(
@@ -157,7 +163,8 @@ fun PlaylistContent(
                     fontWeight = FontWeight.W400,
                     fontSize = 24.sp,
                     maxLines = 2,
-                    overflow = TextOverflow.Visible
+                    overflow = TextOverflow.Visible,
+                    textAlign = androidx.compose.ui.text.style.TextAlign.Center
                 )
                 Row(
                     verticalAlignment = Alignment.CenterVertically
@@ -221,7 +228,9 @@ fun PlaylistContent(
                             songName = song.name,
                             artists = song.artists.primary,
                             onSongClick = { onSongClick(response.songs, song) },
-                            modifier = modifier.fillMaxWidth()
+                            modifier = modifier.fillMaxWidth(),
+                            songId = songId.toString(),
+                            song = song
                         )
                     }
                 }

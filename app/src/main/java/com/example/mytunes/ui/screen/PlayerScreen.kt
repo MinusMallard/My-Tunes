@@ -242,17 +242,6 @@ fun SliderView(
     modifier: Modifier = Modifier,
     seekTo: (Float) -> Unit
 ) {
-
-//    Slider(
-//        value = progress,
-//        onValueChange = {
-//            seekTo(it) },
-//        modifier = modifier
-//            .padding(horizontal = 16.dp)
-//            .fillMaxWidth(),
-//        valueRange = 0f..1f,
-//        steps = 1000
-//    )
     Slider(
         value = progress,
         onValueChange = {
@@ -262,6 +251,4 @@ fun SliderView(
             .fillMaxWidth()
             .height(1.dp),
     )
-
-
 }

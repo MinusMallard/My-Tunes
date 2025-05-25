@@ -1,6 +1,5 @@
 package com.example.mytunes.model
 
-import android.provider.MediaStore
 import androidx.compose.runtime.Immutable
 import com.google.gson.annotations.SerializedName
 

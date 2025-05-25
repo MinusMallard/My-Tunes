@@ -69,12 +69,6 @@ class SongPlayerViewModel @SuppressLint("StaticFieldLeak") constructor(
 
                             startTrackingProgress()
                         }
-                        if (events.contains(Player.EVENT_SHUFFLE_MODE_ENABLED_CHANGED)) {
-
-                        }
-                        if (events.contains(EVENT_MEDIA_ITEM_TRANSITION)) {
-                            // Trigger adapter update to change highlight of current item.
-                        }
                         if (events.contains(Player.EVENT_IS_LOADING_CHANGED)) {
                             startTrackingProgress()
                         }
@@ -166,6 +160,7 @@ class SongPlayerViewModel @SuppressLint("StaticFieldLeak") constructor(
     }
 
     fun addSongList(songs: MutableList<Song>) {
+        Log.d("song", songs[0].url)
         _queue.value.clear()
         _queue.value.addAll(songs)
         controllerFuture.addListener(
@@ -176,7 +171,7 @@ class SongPlayerViewModel @SuppressLint("StaticFieldLeak") constructor(
                     val mediaItem = MediaItem
                         .Builder()
                         .setMediaId(it.id)
-                        .setUri((it.downloadUrl[2].url))
+                        .setUri((it.downloadUrl[it.downloadUrl.size-1].url))
                         .setMediaMetadata(
                             MediaMetadata.Builder()
                                 .setArtist(it.artists.primary[0].name)

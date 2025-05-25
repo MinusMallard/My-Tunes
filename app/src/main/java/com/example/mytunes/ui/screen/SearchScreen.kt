@@ -110,7 +110,7 @@ fun SearchScreen(
     val keyboardController = LocalSoftwareKeyboardController.current
     val focusManager = LocalFocusManager.current
     Box(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
             .pointerInput(Unit) {
                 // closes keyboard whenever user taps anywhere on the screen
@@ -125,7 +125,7 @@ fun SearchScreen(
             }.background(MaterialTheme.colorScheme.background)
     ) {
         Column(
-            modifier
+            Modifier
         ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically

@@ -1,8 +1,5 @@
 package com.example.mytunes.ui.elements
 
-import androidx.compose.animation.AnimatedVisibilityScope
-import androidx.compose.animation.ExperimentalSharedTransitionApi
-import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
@@ -23,16 +20,16 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.media3.session.MediaController
+import androidx.core.text.isDigitsOnly
 import com.example.mytunes.model.HomeAlbum
 import com.example.mytunes.model.HomePlaylist
-import com.google.common.util.concurrent.ListenableFuture
+
+// This composable is for the horizontal list of albums that you see on home screen don't try to fix it is messed up
 
 @Composable
 fun HorizontalAlbums(
     albums: List<HomeAlbum>,
     name: String,
-    controllerFuture: ListenableFuture<MediaController>,
     navigateTo: (String) -> Unit
 ) {
     val interactionSource = remember { MutableInteractionSource() }
@@ -52,43 +49,46 @@ fun HorizontalAlbums(
                 rows = GridCells.Fixed(1)
             ) {
                 items(albums) { album ->
-                    Box(modifier = Modifier.width(200.dp)) {
-                        var artist: String = ""
-                        for (item in album.primaryArtists) {
-                            val nameArt = item.name
-                            artist += if (artist == "") nameArt
-                            else ", $nameArt"
-                        }
-                        Column {
-                            CoverImage(photo = album.image[2].link, modifier = Modifier
-                                .size(200.dp)
-                                .padding(start = 8.dp, top = 4.dp, end = 8.dp, bottom = 8.dp)
-                                .clickable ( onClick = {
-                                    navigateTo("album/${album.id}")
-                                },
-                                    interactionSource = interactionSource,
-                                    indication = null
+                    // here I am checking whether the ID of the given album should only be numeric because non numeric ones were giving me problem
+                    if (album.id.isDigitsOnly()) {
+                        Box(modifier = Modifier.width(200.dp)) {
+                            var artist: String = ""
+                            for (item in album.primaryArtists) {
+                                val nameArt = item.name
+                                artist += if (artist == "") nameArt
+                                else ", $nameArt"
+                            }
+                            Column {
+                                CoverImage(photo = album.image[2].link, modifier = Modifier
+                                    .size(200.dp)
+                                    .padding(start = 8.dp, top = 4.dp, end = 8.dp, bottom = 8.dp)
+                                    .clickable ( onClick = {
+                                        navigateTo("album/${album.id}")
+                                    },
+                                        interactionSource = interactionSource,
+                                        indication = null
+                                    )
                                 )
-                            )
-                            Text(
-                                text = album.name,
-                                modifier = Modifier.padding(start = 8.dp, end = 8.dp),
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 12.sp,
-                                maxLines = 2,
-                                overflow = TextOverflow.Ellipsis,
-                                lineHeight = 12.sp
-                            )
-                            Text(
-                                text = artist,
-                                modifier = Modifier.padding(start = 8.dp, end = 8.dp),
-                                fontWeight = FontWeight.Light,
-                                fontSize = 12.sp,
-                                maxLines = 2,
-                                overflow = TextOverflow.Ellipsis,
-                                color = Color.Gray,
-                                lineHeight = 12.sp
-                            )
+                                Text(
+                                    text = album.name,
+                                    modifier = Modifier.padding(start = 8.dp, end = 8.dp),
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 12.sp,
+                                    maxLines = 2,
+                                    overflow = TextOverflow.Ellipsis,
+                                    lineHeight = 12.sp
+                                )
+                                Text(
+                                    text = artist,
+                                    modifier = Modifier.padding(start = 8.dp, end = 8.dp),
+                                    fontWeight = FontWeight.Light,
+                                    fontSize = 12.sp,
+                                    maxLines = 2,
+                                    overflow = TextOverflow.Ellipsis,
+                                    color = Color.Gray,
+                                    lineHeight = 12.sp
+                                )
+                            }
                         }
                     }
                 }

@@ -1,6 +1,5 @@
 package com.example.mytunes.ui.screen
 
-import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.foundation.indication
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -49,7 +48,6 @@ fun HomeScreen(
     greeting: String,
     name: String,
     homePageData: HomePageLoadState,
-    controllerFuture: ListenableFuture<MediaController>,
     navigateTo: (String) -> Unit,
     getHomeContentData:() -> Unit,
     playlists: PlaylistsUiState,
@@ -72,7 +70,6 @@ fun HomeScreen(
                 greeting = greeting,
                 navigateTo = navigateTo,
                 homePageData = homePageData.data.data,
-                controllerFuture = controllerFuture,
                 playlists = playlists1,
                 playerViewModel = playerViewModel,
                 scrollState = scrollState,
@@ -147,14 +144,14 @@ fun Greetings(
     }
 }
 
-@OptIn(ExperimentalSharedTransitionApi::class)
+
+// This Composable is responsible for showing everything that you see on screen the implementation could be better but it's fine
 @Composable
 fun HomeContent(
     name: String,
     greeting: String,
     navigateTo: (String) -> Unit,
     homePageData: Data,
-    controllerFuture: ListenableFuture<MediaController>,
     playlists: MutableList<PlaylistApiResponse>,
     playerViewModel: SongPlayerViewModel,
     scrollState: LazyListState,
@@ -166,7 +163,7 @@ fun HomeContent(
     var index by rememberSaveable{
         mutableIntStateOf(0)
     }
-    homePageData.charts.size
+
     LazyColumn(
         state = scrollState,
     ) {
@@ -210,9 +207,8 @@ fun HomeContent(
         }
         item {
             HorizontalAlbums(
-                albums = homePageData.albums.subList(0, halfSizeAlbum),
+                albums = homePageData.albums.subList(0, homePageData.albums.size-1),
                 name = "Recommended Albums",
-                controllerFuture = controllerFuture,
                 navigateTo = navigateTo
             )
         }
@@ -249,14 +245,6 @@ fun HomeContent(
                 )
                 index =4
             }
-        }
-        item {
-            HorizontalAlbums(
-                albums = homePageData.albums.subList(halfSizeAlbum, homePageData.albums.size),
-                name = "Top Albums",
-                controllerFuture = controllerFuture,
-                navigateTo = navigateTo
-            )
         }
         item {
             if (4 < playlists.size) {

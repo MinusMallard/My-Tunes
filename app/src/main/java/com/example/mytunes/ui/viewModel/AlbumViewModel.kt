@@ -1,5 +1,6 @@
 package com.example.mytunes.ui.viewModel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.mytunes.data.MyTunesDataRepository
@@ -25,6 +26,7 @@ class AlbumViewModel(
     fun loadAlbum(id: String) {
         viewModelScope.launch {
             _albumUiState.update {
+                Log.d("AlbumViewModel", "loadAlbum: $id")
                 try {
                     val response = myTunesDataRepository.getAlbum(id)
                     if (response.success) {

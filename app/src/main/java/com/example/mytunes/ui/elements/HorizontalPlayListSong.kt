@@ -148,7 +148,7 @@ fun SongBanner(
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
                     lineHeight = 12.sp,
-                    color =  if (song?.id == songId) Color.Green else Color.White
+                    color =  if (song?.id == songId) MaterialTheme.colorScheme.inversePrimary else MaterialTheme.colorScheme.onBackground
                 )
 
             Text(
@@ -157,7 +157,7 @@ fun SongBanner(
                 fontSize = 12.sp,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
-                color = Color.Gray,
+                color = if (song?.id == songId) MaterialTheme.colorScheme.inversePrimary else MaterialTheme.colorScheme.onBackground,
                 lineHeight = 12.sp
             )
         }
