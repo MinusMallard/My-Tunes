@@ -1,25 +1,26 @@
 package com.example.mytunes.media
 
 import android.content.Intent
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.session.MediaSession
 import androidx.media3.session.MediaSessionService
-import com.example.mytunes.AppViewModelProvider
-import com.example.mytunes.ui.viewModel.SongPlayerViewModel
 
-class PlaybackService() : MediaSessionService()  {
+class PlaybackService : MediaSessionService()  {
     private var mediaSession: MediaSession? = null
 
-    override fun onGetSession(controllerInfo: MediaSession.ControllerInfo): MediaSession? = mediaSession
-
-
+    // Create your player and media session in the onCreate lifecycle event
     override fun onCreate() {
         super.onCreate()
         val player = ExoPlayer.Builder(this).build()
         mediaSession = MediaSession.Builder(this, player).build()
     }
 
+    // This example always accepts the connection request
+    override fun onGetSession(
+        controllerInfo: MediaSession.ControllerInfo
+    ): MediaSession? = mediaSession
+
+    // Remember to release the player and media session in onDestroy
     override fun onDestroy() {
         mediaSession?.run {
             player.release()
@@ -28,15 +29,4 @@ class PlaybackService() : MediaSessionService()  {
         }
         super.onDestroy()
     }
-
-    override fun onTaskRemoved(rootIntent: Intent?) {
-        val player = mediaSession?.player
-        if (player != null) {
-            if (player.playWhenReady){
-                player.pause()
-            }
-        }
-        stopSelf()
-    }
-
 }

@@ -145,7 +145,8 @@ fun Greetings(
 }
 
 
-// This Composable is responsible for showing everything that you see on screen the implementation could be better but it's fine
+// This Composable is responsible for showing everything that you see
+// on screen the implementation could be better but it's fine
 @Composable
 fun HomeContent(
     name: String,
@@ -157,8 +158,6 @@ fun HomeContent(
     scrollState: LazyListState,
     songId: String?,
 ) {
-
-    val halfSizeAlbum = homePageData.albums.size / 2
     val halfSizePlaylist = homePageData.playlists.size / 2
     var index by rememberSaveable{
         mutableIntStateOf(0)

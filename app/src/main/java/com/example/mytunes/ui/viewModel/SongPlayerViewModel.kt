@@ -4,12 +4,12 @@ import android.annotation.SuppressLint
 import android.content.ComponentName
 import android.net.Uri
 import android.util.Log
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
 import androidx.media3.common.Player
-import androidx.media3.common.Player.EVENT_MEDIA_ITEM_TRANSITION
 import androidx.media3.common.Player.EVENT_TRACKS_CHANGED
 import androidx.media3.session.MediaController
 import androidx.media3.session.SessionToken
@@ -61,12 +61,9 @@ class SongPlayerViewModel @SuppressLint("StaticFieldLeak") constructor(
                             setCurrentIndex(controller.currentMediaItemIndex)
                             setCurrentSong()
                             _progress.value = 0f
-                            returnNext()
-                            returnPrev()
                         }
                         if (events.contains(Player.EVENT_IS_PLAYING_CHANGED)) {
                             _isPlaying.value = controller.isPlaying
-
                             startTrackingProgress()
                         }
                         if (events.contains(Player.EVENT_IS_LOADING_CHANGED)) {
@@ -113,7 +110,7 @@ class SongPlayerViewModel @SuppressLint("StaticFieldLeak") constructor(
                 val a = controllerFuture.get()
                 a.pause()
             },
-            MoreExecutors.directExecutor()
+            ContextCompat.getMainExecutor(context)
         )
     }
 
@@ -125,7 +122,7 @@ class SongPlayerViewModel @SuppressLint("StaticFieldLeak") constructor(
                 a.prepare()
                 a.play()
             },
-            MoreExecutors.directExecutor()
+            ContextCompat.getMainExecutor(context)
         )
     }
 
@@ -140,7 +137,7 @@ class SongPlayerViewModel @SuppressLint("StaticFieldLeak") constructor(
                 setCurrentIndex(a.currentMediaItemIndex)
                 setCurrentSong()
             },
-            MoreExecutors.directExecutor()
+            ContextCompat.getMainExecutor(context)
         )
     }
     fun playPreviousSong() {
@@ -154,39 +151,52 @@ class SongPlayerViewModel @SuppressLint("StaticFieldLeak") constructor(
                 setCurrentIndex(a.currentMediaItemIndex)
                 setCurrentSong()
             },
-            MoreExecutors.directExecutor()
+            ContextCompat.getMainExecutor(context)
         )
 
     }
 
+    /**
+     * adds the songs list to the playlist but the logic is flawed
+     * as there is uncertainty about the lifetime of the viewmodel so
+     * music can stop automatically in the background I need to fix that
+     * behaviour
+     */
     fun addSongList(songs: MutableList<Song>) {
-        Log.d("song", songs[0].url)
-        _queue.value.clear()
-        _queue.value.addAll(songs)
+        if (songs != _queue.value) {
+            _queue.value.clear()
+            _queue.value.addAll(songs)
+            controllerFuture.addListener(
+                {
+                    val a = controllerFuture.get()
+                    a.clearMediaItems()
+                    for (it in _queue.value) {
+                        val mediaItem = MediaItem
+                            .Builder()
+                            .setMediaId(it.id)
+                            .setUri((it.downloadUrl[it.downloadUrl.size-1].url))
+                            .setMediaMetadata(
+                                MediaMetadata.Builder()
+                                    .setArtist(it.artists.primary[0].name)
+                                    .setTitle(it.name)
+                                    .setArtworkUri(Uri.parse(it.image[2].url))
+                                    .build()
+                            ).build()
+                        a.addMediaItem(mediaItem)
+                    }
+                }
+                , ContextCompat.getMainExecutor(context)
+            )
+        }
         controllerFuture.addListener(
             {
                 val a = controllerFuture.get()
-                a.clearMediaItems()
-                for (it in _queue.value) {
-                    val mediaItem = MediaItem
-                        .Builder()
-                        .setMediaId(it.id)
-                        .setUri((it.downloadUrl[it.downloadUrl.size-1].url))
-                        .setMediaMetadata(
-                            MediaMetadata.Builder()
-                                .setArtist(it.artists.primary[0].name)
-                                .setTitle(it.name)
-                                .setArtworkUri(Uri.parse(it.image[2].url))
-                                .build()
-                        ).build()
-                    a.addMediaItem(mediaItem)
-                }
                 a.seekTo(_currentIndex.value, 0L)
                 a.prepare()
                 a.play()
                 _isPlaying.value = true
-            }
-            , MoreExecutors.directExecutor()
+            },
+            ContextCompat.getMainExecutor(context)
         )
         setCurrentSong()
     }
@@ -195,36 +205,12 @@ class SongPlayerViewModel @SuppressLint("StaticFieldLeak") constructor(
         _currentSong.value = _queue.value[_currentIndex.value]
     }
 
+    /**
+     * This function is called by the UI to ensure the current
+     * index to set the song that is clicked by the user
+     */
     fun setCurrentIndex(index: Int) {
         _currentIndex.value = index
-    }
-
-    fun getTotalDuration(): Long {
-        var total: Long = 0L
-        viewModelScope.launch {
-            controllerFuture.addListener(
-                {
-                    val a = controllerFuture.get()
-                    total = a.duration
-                },
-                MoreExecutors.directExecutor()
-            )
-        }
-        return total
-    }
-
-    fun getCurrentPosition(): Long {
-        var curr: Long = 0L
-        viewModelScope.launch {
-            controllerFuture.addListener(
-                {
-                    val a = controllerFuture.get()
-                    curr = a.contentBufferedPosition
-                },
-                MoreExecutors.directExecutor()
-            )
-        }
-        return curr
     }
 
     fun startTrackingProgress() {
@@ -248,29 +234,5 @@ class SongPlayerViewModel @SuppressLint("StaticFieldLeak") constructor(
             val a = position * controller.duration
             controller.seekTo(a.toLong())
         }
-    }
-
-    fun returnNext() {
-        var a: Int = -1
-        viewModelScope.launch {
-            controller = controllerFuture.await()
-            a = controller.currentMediaItemIndex
-        }
-        if (a < _queue.value.size - 1) {
-            a += 1
-        }
-        _next.value = queue.value[a]
-    }
-
-    fun returnPrev() {
-        var a: Int = queue.value.size - 1
-        viewModelScope.launch {
-            controller = controllerFuture.await()
-            a = controller.currentMediaItemIndex
-        }
-        if (a > 0) {
-            a -= 1
-        }
-        _prev.value = queue.value[a]
     }
 }
