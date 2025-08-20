@@ -16,7 +16,6 @@ import com.example.mytunes.ui.viewModel.SongPlayerViewModel
 import com.example.mytunes.ui.viewModel.SplashViewModel
 
 object AppViewModelProvider {
-
     @RequiresExtension(extension = Build.VERSION_CODES.S, version = 7)
     val Factory = viewModelFactory {
         initializer {

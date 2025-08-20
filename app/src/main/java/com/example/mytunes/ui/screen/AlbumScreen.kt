@@ -85,8 +85,7 @@ fun AlbumScreen(
             is AlbumUiState.Success -> AlbumContent(
                 response = response.albumList.data,
                 onSongClick = { songs: List<Song>, song: Song->
-                    playerViewModel.setCurrentIndex(songs.indexOf(song))
-                    playerViewModel.addSongList(songs.toMutableList())
+                    playerViewModel.addSongList(songs.toMutableList(), songs.indexOf(song))
                 },
                 songId = if (songs.value.isNotEmpty()) songs.value[songIndex.value].id else null,
             )

@@ -83,8 +83,7 @@ fun PlaylistScreen(
             is PlaylistUiState.Success -> PlaylistContent(
                 response = response.playlist.data,
                 onSongClick = { songs: List<Song>, song: Song->
-                    playerViewModel.setCurrentIndex(songs.indexOf(song))
-                    playerViewModel.addSongList(songs.toMutableList())
+                    playerViewModel.addSongList(songs.toMutableList(), songs.indexOf(song))
                 },
                 songId = if (songs.value.isNotEmpty()) songs.value[songIndex.value].id else null,
             )

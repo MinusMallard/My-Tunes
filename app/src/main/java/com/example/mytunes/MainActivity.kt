@@ -46,6 +46,11 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+
+    override fun onStop() {
+        MediaController.releaseFuture(controllerFuture)
+        super.onStop()
+    }
 }
 
 

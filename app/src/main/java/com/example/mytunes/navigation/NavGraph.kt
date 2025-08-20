@@ -44,7 +44,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.media3.session.MediaController
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
@@ -74,9 +73,7 @@ import com.example.mytunes.ui.viewModel.HomePageLoadState
 import com.example.mytunes.ui.viewModel.HomeViewModel
 import com.example.mytunes.ui.viewModel.SearchViewModel
 import com.example.mytunes.ui.viewModel.SongPlayerViewModel
-import com.google.accompanist.navigation.animation.AnimatedNavHost
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
-import com.google.common.util.concurrent.ListenableFuture
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -157,9 +154,7 @@ fun AppNavHost(
                     enter = slideInVertically(initialOffsetY = { it }),
                     exit = slideOutVertically(targetOffsetY = { it }),
                 ) {
-                    Column(
-
-                    ) {
+                    Column {
                         BottomScreenPlayer(
                             playerViewModel = playerViewModel,
                             navigateTo = { navController.navigate("player") }
@@ -270,8 +265,8 @@ fun AppNavHost(
                             }
                         },
                         searchType = searchType,
-                        modifier = Modifier.padding(innerPadding),
-                        songPlayerViewModel = playerViewModel
+                        songPlayerViewModel = playerViewModel,
+                        paddingValues = innerPadding
                     )
                 }
                 composable(
@@ -421,7 +416,6 @@ fun RootNavigationGraph(
     navHostController: NavHostController = rememberNavController(),
     sharedPre: SharedPreferences,
     sharedPref2: SharedPreferences,
-    controllerFuture: ListenableFuture<MediaController>
 ) {
     val name = sharedPre.getString("name", "").toString()
     val language = sharedPref2.getString("languages", "").toString()

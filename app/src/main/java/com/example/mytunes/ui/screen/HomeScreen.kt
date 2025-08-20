@@ -176,8 +176,7 @@ fun HomeContent(
                     songList = playlists[0].data.songs,
                     name = playlists[0].data.name,
                     onSongClick = { songs: List<Song>, song: Song->
-                        playerViewModel.setCurrentIndex(songs.indexOf(song))
-                        playerViewModel.addSongList(songs.toMutableList())
+                        playerViewModel.addSongList(songs.toMutableList(), songs.indexOf(song))
                     },
                     songId = songId.toString()
                 )
@@ -197,8 +196,7 @@ fun HomeContent(
                     songList = playlists[1].data.songs,
                     name = playlists[1].data.name,
                     onSongClick = { songs: List<Song>, song: Song->
-                        playerViewModel.setCurrentIndex(songs.indexOf(song))
-                        playerViewModel.addSongList(songs.toMutableList())
+                        playerViewModel.addSongList(songs.toMutableList(), songs.indexOf(song))
                     },
                     songId = songId.toString())
                 index = 2
@@ -217,8 +215,7 @@ fun HomeContent(
                     songList = playlists[2].data.songs,
                     name = playlists[2].data.name,
                     onSongClick = { songs: List<Song>, song: Song->
-                        playerViewModel.setCurrentIndex(songs.indexOf(song))
-                        playerViewModel.addSongList(songs.toMutableList())
+                        playerViewModel.addSongList(songs.toMutableList(), songs.indexOf(song))
                     },
                     songId = songId.toString())
                 index = 3
@@ -236,9 +233,8 @@ fun HomeContent(
                 HorizontalSongBanner(
                     songList = playlists[3].data.songs,
                     name = playlists[3].data.name,
-                    onSongClick = {songs: List<Song>, song: Song->
-                        playerViewModel.setCurrentIndex(songs.indexOf(song))
-                        playerViewModel.addSongList(songs.toMutableList())
+                    onSongClick = { songs: List<Song>, song: Song->
+                        playerViewModel.addSongList(songs.toMutableList(), songs.indexOf(song))
                     },
                     songId = songId.toString()
                 )
@@ -250,10 +246,8 @@ fun HomeContent(
                 HorizontalSongBanner(
                     songList = playlists[4].data.songs,
                     name = playlists[4].data.name,
-                    onSongClick = {songs: List<Song>, song: Song->
-                        playerViewModel.setCurrentIndex(songs.indexOf(song))
-                        playerViewModel.addSongList(songs.toMutableList())
-
+                    onSongClick = { songs: List<Song>, song: Song->
+                        playerViewModel.addSongList(songs.toMutableList(), songs.indexOf(song))
                     },
                     songId = songId.toString())
                 index = 5

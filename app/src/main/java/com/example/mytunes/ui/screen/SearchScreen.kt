@@ -11,11 +11,15 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.ime
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -32,6 +36,7 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBackIosNew
+import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Done
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
@@ -43,7 +48,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -52,6 +56,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
@@ -91,29 +96,29 @@ sealed interface SearchScreenState {
     data object Error: SearchScreenState
 }
 
-
 @Composable
 fun SearchScreen(
-    modifier: Modifier = Modifier,
     searchText: String,
     onSearchTextChange: (String) -> Unit,
-    searchResponse:() -> Unit,
+    searchResponse: () -> Unit,
     response: SearchScreenState,
     resetResponse: () -> Unit,
-    changeSearchType:(String) -> Unit,
-    provideCategory:(String) -> Unit,
-    provideColor:(Color) -> Unit,
+    changeSearchType: (String) -> Unit,
+    provideCategory: (String) -> Unit,
+    provideColor: (Color) -> Unit,
     navigateTo: (String) -> Unit,
     searchType: String,
-    songPlayerViewModel: SongPlayerViewModel
+    songPlayerViewModel: SongPlayerViewModel,
+    paddingValues: PaddingValues
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
     val focusManager = LocalFocusManager.current
+    val imeVisible = WindowInsets.ime.getBottom(LocalDensity.current) > 0
+
     Box(
-        modifier = modifier
+        modifier = Modifier
             .fillMaxSize()
             .pointerInput(Unit) {
-                // closes keyboard whenever user taps anywhere on the screen
                 detectTapGestures(onTap = {
                     keyboardController?.hide()
                     focusManager.clearFocus()
@@ -122,19 +127,24 @@ fun SearchScreen(
                     keyboardController?.hide()
                     focusManager.clearFocus()
                 })
-            }.background(MaterialTheme.colorScheme.background)
+            }
+            .background(MaterialTheme.colorScheme.background)
+            .padding(
+                top = paddingValues.calculateTopPadding(),
+                bottom = if (imeVisible) 0.dp else paddingValues.calculateBottomPadding()
+            ).imePadding()
     ) {
-        Column(
-            Modifier
-        ) {
+        Column(modifier = Modifier.fillMaxSize()) {
+            // First Row for the back arrow and search field
             Row(
                 verticalAlignment = Alignment.CenterVertically
-            ) {
-                AnimatedVisibility(visible = response is SearchScreenState.SuccessSong
-                        || response is SearchScreenState.SuccessPlaylist
-                        || response is SearchScreenState.SuccessAlbum
-                        || response is SearchScreenState.Loading
-                        || response is SearchScreenState.Error) {
+             ) {
+                AnimatedVisibility(
+                    visible = response is SearchScreenState.SuccessSong
+                            || response is SearchScreenState.SuccessPlaylist
+                            || response is SearchScreenState.SuccessAlbum
+                            || response is SearchScreenState.Loading|| response is SearchScreenState.Error
+                ) {
                     Icon(
                         imageVector = Icons.Filled.ArrowBackIosNew,
                         contentDescription = null,
@@ -190,58 +200,25 @@ fun SearchScreen(
                         focusedPlaceholderColor = MaterialTheme.colorScheme.onPrimaryContainer,
                         focusedTextColor = MaterialTheme.colorScheme.onPrimaryContainer,
                         unfocusedTextColor = MaterialTheme.colorScheme.onPrimaryContainer,
-
                     ),
-                    shape = MaterialTheme.shapes.medium
+                    shape = MaterialTheme.shapes.medium,
+                    trailingIcon = {
+                        AnimatedVisibility(searchText.isNotBlank()) {
+                            Icon(
+                                imageVector = Icons.Filled.Clear,
+                                contentDescription = null,
+                                modifier = Modifier
+                                    .padding(top = 16.dp, start = 16.dp, end = 10.dp)
+                                    .clickable(onClick = { resetResponse() })
+                            )
+                        }
+                    }
                 )
             }
+            // Second Row for the filter chips
             Row(
                 modifier = Modifier
                     .pointerInput(Unit) {
-                    // closes keyboard whenever user taps anywhere on the screen
-                    detectTapGestures(onTap = {
-                        keyboardController?.hide()
-                        focusManager.clearFocus()
-                    })
-                    detectDragGestures(onDrag = { _, _ ->
-                        keyboardController?.hide()
-                        focusManager.clearFocus()
-                    })
-                }
-            ) {
-                if (response is SearchScreenState.SuccessPlaylist
-                    || response is SearchScreenState.SuccessSong
-                    || response is SearchScreenState.SuccessAlbum
-                    || response is SearchScreenState.Loading
-                    || response is SearchScreenState.Error) {
-                    FilterChipExample(
-                        text = "songs",
-                        onClick = {
-                            changeSearchType("songs")
-                        },
-                        selected = searchType == "songs"
-                    )
-                    FilterChipExample(
-                        text = "playlists",
-                        onClick = {
-                            changeSearchType("playlists")
-                        },
-                        selected = searchType == "playlists"
-                    )
-                    FilterChipExample(
-                        text = "albums",
-                        onClick = {
-                            changeSearchType("albums")
-                        },
-                        selected = searchType == "albums"
-                    )
-                }
-            }
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .pointerInput(Unit) {
-                        // closes keyboard whenever user taps anywhere on the screen
                         detectTapGestures(onTap = {
                             keyboardController?.hide()
                             focusManager.clearFocus()
@@ -251,7 +228,45 @@ fun SearchScreen(
                             focusManager.clearFocus()
                         })
                     }
-                    .padding(top = 8.dp, start = 8.dp, end = 8.dp)
+            ) {
+                if (response is SearchScreenState.SuccessPlaylist
+                    || response is SearchScreenState.SuccessSong
+                    || response is SearchScreenState.SuccessAlbum
+                    || response is SearchScreenState.Loading
+                    || response is SearchScreenState.Error
+                ) {
+                    FilterChipExample(
+                        text = "songs",
+                        onClick = { changeSearchType("songs") },
+                        selected = searchType == "songs"
+                    )
+                    FilterChipExample(
+                        text = "playlists",
+                        onClick = { changeSearchType("playlists") },
+                        selected = searchType == "playlists"
+                    )
+                    FilterChipExample(
+                        text = "albums",
+                        onClick = { changeSearchType("albums") },
+                        selected = searchType == "albums"
+                    )
+                }
+            }
+            // Column for the main search results, now with imePadding
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .pointerInput(Unit) {
+                        detectTapGestures(onTap = {
+                            keyboardController?.hide()
+                            focusManager.clearFocus()
+                        })
+                        detectDragGestures(onDrag = { _, _ ->
+                            keyboardController?.hide()
+                            focusManager.clearFocus()
+                        })
+                    }
+                    .padding(top = 8.dp, start = 8.dp)
             ) {
                 when (response) {
                     is SearchScreenState.Nothing -> SearchScreenTiles(
@@ -263,8 +278,7 @@ fun SearchScreen(
                     is SearchScreenState.SuccessSong -> ResponseScreen(
                         response = response.searchSongs,
                         onSongClick = { songList: List<Song> ->
-                            songPlayerViewModel.setCurrentIndex(0)
-                            songPlayerViewModel.addSongList(songList.toMutableList())
+                            songPlayerViewModel.addSongList(songList.toMutableList(), 0)
                             keyboardController?.hide()
                             focusManager.clearFocus()
                         }
@@ -304,7 +318,7 @@ fun SearchScreenTiles(
     )
 
     LazyColumn(
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier.fillMaxSize().imePadding()
     ) {
         item {
             ExploreBanners(
@@ -466,8 +480,7 @@ fun ExploreBanners(
         Column(
             verticalArrangement = Arrangement.SpaceEvenly
         ){
-            Row(
-            ){
+            Row {
                 Box(
                     contentAlignment = Alignment.Center,
                     modifier = Modifier
@@ -529,8 +542,7 @@ fun ExploreBanners(
                 }
             }
             Spacer(modifier = Modifier.height(8.dp))
-            Row(
-            ){
+            Row {
                 Box(
                     contentAlignment = Alignment.Center,
                     modifier = Modifier
